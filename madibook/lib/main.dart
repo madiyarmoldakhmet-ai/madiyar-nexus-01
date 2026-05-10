@@ -15,7 +15,7 @@ import 'view_models/ai_chat_controller.dart';
 import 'views/login_view.dart';
 import 'views/discovery_view.dart';
 import 'views/academy_view.dart';
-import 'views/chat_view.dart';
+import 'screens/chat_screen.dart';
 import 'views/journey_view.dart';
 import 'views/profile_view.dart';
 
@@ -80,7 +80,7 @@ class MadibookShell extends StatelessWidget {
   static const List<Widget> _pages = [
     DiscoveryView(),
     AcademyView(),
-    ChatView(),
+    ChatScreen(),
     JourneyView(),
     ProfileView(),
   ];

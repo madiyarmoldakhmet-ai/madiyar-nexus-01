@@ -25,15 +25,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -72,4 +66,24 @@ class DefaultFirebaseOptions {
     storageBucket: 'madibook-e96e0.firebasestorage.app',
     iosBundleId: 'com.example.madibook',
   );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyB8QsbWWm5N_uBt10TXoIuWGBA12g15ANQ',
+    appId: '1:52810814573:ios:aa095083e0d5e6f56b9b64',
+    messagingSenderId: '52810814573',
+    projectId: 'madibook-e96e0',
+    storageBucket: 'madibook-e96e0.firebasestorage.app',
+    iosBundleId: 'com.example.madibook',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyAwzL_KlxVj7KAIHAroeRgXnPm3tkCYkyo',
+    appId: '1:52810814573:web:b1c4d627a9fc32806b9b64',
+    messagingSenderId: '52810814573',
+    projectId: 'madibook-e96e0',
+    authDomain: 'madibook-e96e0.firebaseapp.com',
+    storageBucket: 'madibook-e96e0.firebasestorage.app',
+    measurementId: 'G-T178E2M8QJ',
+  );
+
 }
