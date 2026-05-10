@@ -7,16 +7,22 @@ import '../core/constants.dart';
 import '../core/auth_service.dart';
 import '../models/message.dart';
 import '../widgets/message_bubble.dart';
-import 'user_search_screen.dart';
 
-class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+class PrivateChatScreen extends StatefulWidget {
+  final String otherUserId;
+  final String otherUserNickname;
+
+  const PrivateChatScreen({
+    super.key,
+    required this.otherUserId,
+    required this.otherUserNickname,
+  });
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  State<PrivateChatScreen> createState() => _PrivateChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _PrivateChatScreenState extends State<PrivateChatScreen> {
   final TextEditingController _msgController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
@@ -27,18 +33,30 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
+  String _getChatId(String uid1, String uid2) {
+    List<String> ids = [uid1, uid2];
+    ids.sort();
+    return ids.join('_');
+  }
+
   void _sendMessage() async {
     final text = _msgController.text.trim();
     if (text.isEmpty) return;
 
     final auth = context.read<AuthService>();
-    final senderId = auth.currentUser?.id ?? 'anonymous';
+    final myId = auth.currentUser?.id ?? 'anonymous';
+    
+    final chatId = _getChatId(myId, widget.otherUserId);
 
     _msgController.clear();
 
-    await FirebaseFirestore.instance.collection('messages').add({
+    await FirebaseFirestore.instance
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .add({
       'text': text,
-      'senderId': senderId,
+      'senderId': myId,
       'timestamp': FieldValue.serverTimestamp(),
     });
   }
@@ -47,28 +65,20 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthService>();
     final myId = auth.currentUser?.id ?? 'anonymous';
+    final chatId = _getChatId(myId, widget.otherUserId);
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: MadiColors.scaffoldDark,
-        title: const Text('Global Chat'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search_rounded, color: MadiColors.gold),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const UserSearchScreen()),
-              );
-            },
-          ),
-        ],
+        title: Text(widget.otherUserNickname),
       ),
       body: Column(
         children: [
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
+                  .collection('chats')
+                  .doc(chatId)
                   .collection('messages')
                   .orderBy('timestamp', descending: true)
                   .snapshots(),
@@ -87,24 +97,23 @@ class _ChatScreenState extends State<ChatScreen> {
                 final docs = snapshot.data?.docs ?? [];
 
                 if (docs.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Text(
-                      'No messages yet. Start chatting!',
-                      style: TextStyle(color: MadiColors.textMuted),
+                      'No messages yet with ${widget.otherUserNickname}.',
+                      style: const TextStyle(color: MadiColors.textMuted),
                     ),
                   );
                 }
 
                 return ListView.builder(
                   controller: _scrollController,
-                  reverse: true, // Keep the latest messages at the bottom
+                  reverse: true,
                   padding: const EdgeInsets.all(16),
                   itemCount: docs.length,
                   itemBuilder: (context, index) {
                     final data = docs[index].data() as Map<String, dynamic>;
                     final message = Message.fromJson(data);
 
-                    // For messages just sent locally, timestamp might be null
                     DateTime dateTime = message.timestamp.toDate();
                     final timeString = DateFormat.Hm().format(dateTime);
 
