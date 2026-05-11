@@ -1,15 +1,15 @@
 {
   "project_info": {
     "project_number": "52810814573",
-    "project_id": "madibook-e96e0",
-    "storage_bucket": "madibook-e96e0.firebasestorage.app"
+    "project_id": "nexus-e96e0",
+    "storage_bucket": "nexus-e96e0.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
         "mobilesdk_app_id": "1:52810814573:android:609701709e4ee27c6b9b64",
         "android_client_info": {
-          "package_name": "com.example.madibook"
+          "package_name": "com.madiyar.nexus"
         }
       },
       "oauth_client": [],

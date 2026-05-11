@@ -1,4 +1,4 @@
-package com.example.madibook
+package com.madiyar.nexus
 
 import io.flutter.embedding.android.FlutterActivity
 
