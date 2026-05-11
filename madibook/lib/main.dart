@@ -6,6 +6,7 @@ import 'core/theme.dart';
 import 'core/constants.dart';
 import 'core/auth_service.dart';
 import 'core/chat_service.dart';
+import 'models/user_model.dart';
 import 'view_models/app_state.dart';
 import 'view_models/credit_manager.dart';
 import 'view_models/match_engine.dart';
@@ -24,11 +25,11 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MadibookApp());
+  runApp(const NexusApp());
 }
 
-class MadibookApp extends StatelessWidget {
-  const MadibookApp({super.key});
+class NexusApp extends StatelessWidget {
+  const NexusApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +48,7 @@ class MadibookApp extends StatelessWidget {
             create: (_) => ChatController(chatService)),
       ],
       child: MaterialApp(
-        title: 'Madibook',
+        title: 'Nexus',
         debugShowCheckedModeBanner: false,
         theme: MadiTheme.dark,
         home: const AuthGate(),
@@ -62,11 +63,35 @@ class AuthGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthService>(
-      builder: (context, auth, _) {
-        if (auth.isAuthenticated) {
-          return const MadibookShell();
+    final authService = context.read<AuthService>();
+    final appState = context.read<AppState>();
+    
+    return StreamBuilder<MadiUser?>(
+      stream: authService.authStateChanges,
+      builder: (context, snapshot) {
+        // If the stream hasn't emitted yet, we might be in 'initial' or 'loading' state
+        if (snapshot.connectionState == ConnectionState.waiting && 
+            authService.state == AuthState.initial) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(color: MadiColors.gold),
+            ),
+          );
         }
+
+        final user = snapshot.data;
+        
+        // Sync user to AppState for backward compatibility with existing views
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (appState.currentUser != user) {
+            appState.setCurrentUser(user);
+          }
+        });
+
+        if (user != null) {
+          return const NexusShell();
+        }
+        
         return const LoginView();
       },
     );
@@ -74,8 +99,8 @@ class AuthGate extends StatelessWidget {
 }
 
 /// The main shell with 5-tab bottom navigation.
-class MadibookShell extends StatelessWidget {
-  const MadibookShell({super.key});
+class NexusShell extends StatelessWidget {
+  const NexusShell({super.key});
 
   static const List<Widget> _pages = [
     DiscoveryView(),

@@ -5,7 +5,7 @@ class JourneyMilestone {
   final String title;
   final String description;
   final DateTime date;
-  final String category; // "FPV Piloting", "Robotics", "Hacking", "Madibook"
+  final String category; // "FPV Piloting", "Robotics", "Hacking", "Nexus"
   final IconData icon;
   final String? imageUrl;
   final List<String> tags;
@@ -95,7 +95,7 @@ class JourneyMilestone {
               'a simple to-do list that I immediately deleted because to-do apps are boring. '
               'The real mission was just beginning.',
           date: DateTime(2023, 5, 22),
-          category: 'Madibook',
+          category: 'Nexus',
           icon: Icons.phone_android_rounded,
           tags: ['Flutter', 'Dart', 'Mobile'],
         ),
@@ -111,24 +111,24 @@ class JourneyMilestone {
           tags: ['Bug Bounty', 'IDOR', 'Responsible Disclosure'],
         ),
         JourneyMilestone(
-          title: 'Madibook — The Vision',
+          title: 'Nexus — The Vision',
           description:
-              'Conceived the idea for Madibook: a "Human Library" where people '
+              'Conceived the idea for Nexus: a "Human Library" where people '
               'exchange knowledge using Madi-Credits. No money, no gatekeepers — '
               'just humans teaching humans. The mission: make education free and peer-to-peer.',
           date: DateTime(2024, 1, 15),
-          category: 'Madibook',
+          category: 'Nexus',
           icon: Icons.auto_awesome_rounded,
           tags: ['P2P', 'Education', 'Vision'],
         ),
         JourneyMilestone(
-          title: 'Madibook MVP — Architecture Complete',
+          title: 'Nexus MVP — Architecture Complete',
           description:
               'Built the production-ready MVP: MVVM architecture, matching algorithm, '
               'credit system, premium UI with glassmorphism. The foundation is set. '
               'Now it\'s time to build the Endless Learning Ecosystem.',
           date: DateTime(2024, 5, 8),
-          category: 'Madibook',
+          category: 'Nexus',
           icon: Icons.rocket_launch_rounded,
           tags: ['MVP', 'Flutter', 'Production'],
         ),

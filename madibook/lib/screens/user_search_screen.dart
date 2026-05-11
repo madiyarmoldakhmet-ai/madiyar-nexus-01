@@ -14,35 +14,12 @@ class UserSearchScreen extends StatefulWidget {
 
 class _UserSearchScreenState extends State<UserSearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<Map<String, dynamic>> _searchResults = [];
-  bool _isLoading = false;
+  String _searchQuery = '';
 
-  void _searchUsers(String query) async {
-    if (query.isEmpty) {
-      setState(() {
-        _searchResults = [];
-      });
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('nickname', isEqualTo: query.trim())
-          .get();
-
-      setState(() {
-        _searchResults = snapshot.docs
-            .map((doc) => doc.data())
-            .toList();
-      });
-    } catch (e) {
-      debugPrint('Error searching users: $e');
-    } finally {
-      setState(() => _isLoading = false);
-    }
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -57,69 +34,94 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
           autofocus: true,
           style: const TextStyle(color: MadiColors.textPrimary),
           decoration: const InputDecoration(
-            hintText: 'Search by nickname...',
+            hintText: 'Search by name, username or email...',
             hintStyle: TextStyle(color: MadiColors.textMuted),
             border: InputBorder.none,
           ),
-          onChanged: _searchUsers,
+          onChanged: (val) => setState(() => _searchQuery = val.trim()),
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _searchResults.isEmpty
-              ? Center(
-                  child: Text(
-                    _searchController.text.isEmpty
-                        ? 'Enter a nickname to find friends'
-                        : 'No users found',
-                    style: const TextStyle(color: MadiColors.textMuted),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('users').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return const Center(child: Text('Error loading users'));
+          }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final allUsers = snapshot.data?.docs ?? [];
+          print('DEBUG: [Search] Total users in Firestore: ${allUsers.length}');
+
+          final results = allUsers.where((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            final id = data['uid'] ?? data['id'] ?? doc.id;
+            
+            // Exclude self (robust check)
+            if (id == currentUserId) return false;
+
+            if (_searchQuery.isEmpty) return true; 
+
+            final name = (data['name'] ?? '').toString().toLowerCase();
+            final username = (data['username'] ?? '').toString().toLowerCase();
+            final email = (data['email'] ?? '').toString().toLowerCase();
+            final query = _searchQuery.toLowerCase();
+
+            return name.contains(query) || 
+                   username.contains(query) || 
+                   email.contains(query);
+          }).toList();
+
+          if (results.isEmpty) {
+            return const Center(
+              child: Text('No users found', 
+                style: TextStyle(color: MadiColors.textMuted)),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: results.length,
+            itemBuilder: (context, index) {
+              final doc = results[index];
+              final user = doc.data() as Map<String, dynamic>;
+              final name = user['name'] ?? 'Unknown';
+              final id = user['uid'] ?? user['id'] ?? doc.id;
+
+              return Card(
+                color: MadiColors.cardDark,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: MadiColors.indigo,
+                    child: Text(name[0].toUpperCase(), 
+                      style: const TextStyle(color: Colors.white)),
                   ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _searchResults.length,
-                  itemBuilder: (context, index) {
-                    final user = _searchResults[index];
-                    final nickname = user['nickname'] ?? 'Unknown';
-                    final uid = user['uid'] ?? '';
-
-                    // Don't show current user in search results
-                    if (uid == currentUserId) return const SizedBox.shrink();
-
-                    return Card(
-                      color: MadiColors.cardDark,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(MadiRadius.md),
-                      ),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: MadiColors.indigo,
-                          child: Text(
-                            nickname[0].toUpperCase(),
-                            style: const TextStyle(color: Colors.white),
-                          ),
+                  title: Text(name, 
+                    style: const TextStyle(color: MadiColors.textPrimary)),
+                  subtitle: Text(user['username'] ?? user['email'] ?? '',
+                    style: const TextStyle(color: MadiColors.textMuted, fontSize: 12)),
+                  trailing: const Icon(Icons.chat_outlined, color: MadiColors.gold),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PrivateChatScreen(
+                          otherUserId: id,
+                          otherUserName: name,
                         ),
-                        title: Text(
-                          nickname,
-                          style: const TextStyle(color: MadiColors.textPrimary),
-                        ),
-                        trailing: const Icon(Icons.chat_outlined,
-                            color: MadiColors.gold),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PrivateChatScreen(
-                                otherUserId: uid,
-                                otherUserNickname: nickname,
-                              ),
-                            ),
-                          );
-                        },
                       ),
                     );
                   },
                 ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

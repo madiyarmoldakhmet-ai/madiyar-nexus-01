@@ -19,7 +19,7 @@ class TimelineCard extends StatelessWidget {
       'FPV Piloting' => MadiColors.sky,
       'Robotics' => MadiColors.emerald,
       'Hacking' => MadiColors.rose,
-      'Madibook' => MadiColors.gold,
+      'Nexus' => MadiColors.gold,
       _ => MadiColors.indigo,
     };
   }

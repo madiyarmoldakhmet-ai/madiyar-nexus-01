@@ -10,12 +10,12 @@ import '../widgets/message_bubble.dart';
 
 class PrivateChatScreen extends StatefulWidget {
   final String otherUserId;
-  final String otherUserNickname;
+  final String otherUserName;
 
   const PrivateChatScreen({
     super.key,
     required this.otherUserId,
-    required this.otherUserNickname,
+    required this.otherUserName,
   });
 
   @override
@@ -35,8 +35,10 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
 
   String _getChatId(String uid1, String uid2) {
     List<String> ids = [uid1, uid2];
-    ids.sort();
-    return ids.join('_');
+    ids.sort(); // ALPHABETICAL SORT
+    final chatId = ids.join('_');
+    print('DEBUG: Generated Chat ID: $chatId (Sorted: ${ids[0]} and ${ids[1]})');
+    return chatId;
   }
 
   void _sendMessage() async {
@@ -47,6 +49,8 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
     final myId = auth.currentUser?.id ?? 'anonymous';
     
     final chatId = _getChatId(myId, widget.otherUserId);
+
+    print('DEBUG: Sending message from $myId to ${widget.otherUserId} in room $chatId');
 
     _msgController.clear();
 
@@ -70,7 +74,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: MadiColors.scaffoldDark,
-        title: Text(widget.otherUserNickname),
+        title: Text(widget.otherUserName),
       ),
       body: Column(
         children: [
@@ -99,7 +103,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                 if (docs.isEmpty) {
                   return Center(
                     child: Text(
-                      'No messages yet with ${widget.otherUserNickname}.',
+                      'No messages yet with ${widget.otherUserName}.',
                       style: const TextStyle(color: MadiColors.textMuted),
                     ),
                   );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Madibook Design System Constants
+/// Nexus Design System Constants
 /// All design tokens live here for global consistency.
 class MadiColors {
   MadiColors._();

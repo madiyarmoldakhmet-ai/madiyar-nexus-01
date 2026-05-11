@@ -18,6 +18,9 @@ class ProfileView extends StatelessWidget {
     return Consumer2<AppState, QuizController>(
       builder: (context, appState, quiz, _) {
         final user = appState.currentUser;
+        if (user == null) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
         return Scaffold(
           body: CustomScrollView(
             physics: const BouncingScrollPhysics(),
@@ -191,41 +194,41 @@ class ProfileView extends StatelessWidget {
             border: Border.all(
                 color: MadiColors.gold.withValues(alpha: 0.2)),
           ),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    colors: [MadiColors.gold, MadiColors.goldDark],
-                  ),
-                ),
-                child: const Center(
-                  child: Icon(Icons.auto_awesome, size: 22, color: Colors.black),
-                ),
-              ),
-              const SizedBox(width: MadiSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Madi Mentor',
-                        style: Theme.of(context).textTheme.titleMedium),
-                    const SizedBox(height: 2),
-                    Text(
-                      'AI-powered tutor for Math, Physics & more',
-                      style: TextStyle(
-                          color: MadiColors.textMuted, fontSize: 12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: const LinearGradient(
+                        colors: [MadiColors.gold, MadiColors.goldDark],
+                      ),
                     ),
-                  ],
-                ),
+                    child: const Center(
+                      child: Icon(Icons.auto_awesome, size: 22, color: Colors.black),
+                    ),
+                  ),
+                  const SizedBox(width: MadiSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('AI Mentor',
+                            style: Theme.of(context).textTheme.titleMedium),
+                        const SizedBox(height: 2),
+                        Text(
+                          'AI-powered tutor for Math, Physics & more',
+                          style: TextStyle(
+                              color: MadiColors.textMuted, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios_rounded,
+                      size: 14, color: MadiColors.gold),
+                ],
               ),
-              const Icon(Icons.arrow_forward_ios_rounded,
-                  size: 14, color: MadiColors.gold),
-            ],
-          ),
         ),
       ),
     );
@@ -277,7 +280,7 @@ class ProfileView extends StatelessWidget {
       ('FPV Pilot — Freestyle', Icons.flight_rounded, MadiColors.sky),
       ('Robotics Olympiad — 1st', Icons.smart_toy_rounded, MadiColors.emerald),
       ('CTF Hacker', Icons.security_rounded, MadiColors.rose),
-      ('Madibook Lead Dev', Icons.code_rounded, MadiColors.indigo),
+      ('Nexus Lead Dev', Icons.code_rounded, MadiColors.indigo),
     ];
 
     return Column(

@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '52810814573',
     projectId: 'madibook-e96e0',
     storageBucket: 'madibook-e96e0.firebasestorage.app',
-    iosBundleId: 'com.example.madibook',
+    iosBundleId: 'com.madiyar.nexus',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '52810814573',
     projectId: 'madibook-e96e0',
     storageBucket: 'madibook-e96e0.firebasestorage.app',
-    iosBundleId: 'com.example.madibook',
+    iosBundleId: 'com.madiyar.nexus',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

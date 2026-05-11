@@ -5,7 +5,7 @@ import '../view_models/app_state.dart';
 import '../view_models/match_engine.dart';
 import '../widgets/skill_card.dart';
 
-/// The Discovery Feed — the main screen of Madibook.
+/// The Discovery Feed — the main screen of Nexus.
 ///
 /// Shows a curated list of skill matches ranked by relevance.
 /// Users can browse cards and tap "Request Swap" to initiate an exchange.
@@ -18,21 +18,22 @@ class DiscoveryView extends StatefulWidget {
 
 class _DiscoveryViewState extends State<DiscoveryView> {
   @override
-  void initState() {
-    super.initState();
-    // Run the matching engine after first frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _runMatching();
-    });
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _runMatching();
   }
 
   void _runMatching() {
-    final appState = context.read<AppState>();
+    final appState = Provider.of<AppState>(context, listen: true);
     final matchEngine = context.read<MatchEngine>();
-    matchEngine.findMatches(
-      currentUser: appState.currentUser,
-      allUsers: appState.communityUsers,
-    );
+    final user = appState.currentUser;
+    
+    if (user != null) {
+      matchEngine.findMatches(
+        currentUser: user,
+        allUsers: appState.communityUsers,
+      );
+    }
   }
 
   @override
@@ -57,7 +58,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                       colors: [MadiColors.goldShimmer, MadiColors.gold],
                     ).createShader(bounds),
                     child: const Text(
-                      'Madibook',
+                      'Nexus',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
@@ -147,7 +148,9 @@ class _DiscoveryViewState extends State<DiscoveryView> {
           SliverToBoxAdapter(
             child: Consumer<AppState>(
               builder: (context, appState, _) {
-                final seekings = appState.currentUser.seekings;
+                final user = appState.currentUser;
+                if (user == null) return const SizedBox.shrink();
+                final seekings = user.seekings;
                 if (seekings.isEmpty) return const SizedBox.shrink();
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
@@ -287,6 +290,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
   void _showSwapDialog(BuildContext context, MatchResult match) {
     final appState = context.read<AppState>();
     final currentUser = appState.currentUser;
+    if (currentUser == null) return;
 
     // Pick the first matched skill for the request
     final skillRequested = match.matchedSkills.first.name;

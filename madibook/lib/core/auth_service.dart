@@ -1,23 +1,20 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
-import '../models/skill_model.dart';
 
 /// Authentication state.
 enum AuthState { initial, loading, authenticated, unauthenticated, error }
 
-/// Mock authentication service.
-///
-/// Mirrors Firebase Auth's API surface so you can swap it with:
-///   class FirebaseAuthService implements AuthService { ... }
-/// without touching any UI code.
+/// Production-ready Firebase Authentication service.
 class AuthService extends ChangeNotifier {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   AuthState _state = AuthState.initial;
   MadiUser? _currentUser;
   String? _errorMessage;
-
-  // In-memory "database" of registered users.
-  final Map<String, _MockAccount> _accounts = {};
 
   AuthState get state => _state;
   MadiUser? get currentUser => _currentUser;
@@ -30,42 +27,63 @@ class AuthService extends ChangeNotifier {
   Stream<MadiUser?> get authStateChanges => _authStateController.stream;
 
   AuthService() {
-    // Pre-seed Madi's account for demo purposes.
-    _accounts['madi@madibook.kz'] = _MockAccount(
-      email: 'madi@madibook.kz',
-      password: 'madi123',
-      user: MadiUser(
-        id: 'user-madi',
-        name: 'Madiyar',
-        bio:
-            'Builder of Madibook. Passionate about connecting learners worldwide.',
-        location: 'Almaty, Kazakhstan',
-        madiCredits: 5.0,
-        offerings: [
-          Skill(
-              name: 'Python',
-              category: 'Programming',
-              type: SkillType.offering),
-          Skill(
-              name: 'Flutter',
-              category: 'Programming',
-              type: SkillType.offering),
-          Skill(
-              name: 'UI Design', category: 'Design', type: SkillType.offering),
-        ],
-        seekings: [
-          Skill(name: 'Guitar', category: 'Music', type: SkillType.seeking),
-          Skill(
-              name: 'Japanese',
-              category: 'Languages',
-              type: SkillType.seeking),
-          Skill(
-              name: 'Photography',
-              category: 'Photography',
-              type: SkillType.seeking),
-        ],
-      ),
+    // Listen to Firebase Auth state changes
+    _auth.authStateChanges().listen(_onAuthStateChanged);
+  }
+
+  Future<void> _onAuthStateChanged(User? firebaseUser) async {
+    if (firebaseUser == null) {
+      _currentUser = null;
+      _state = AuthState.unauthenticated;
+      _authStateController.add(null);
+    } else {
+      // Sync user data from Firestore using our unified storage method
+      _currentUser = await _ensureUserStored(firebaseUser);
+      _state = AuthState.authenticated;
+      _authStateController.add(_currentUser);
+    }
+    notifyListeners();
+  }
+
+  /// Ensures the user document exists in Firestore.
+  /// If it doesn't exist, it creates it with the required fields.
+  Future<MadiUser> _ensureUserStored(User firebaseUser, {String? nameOverride}) async {
+    // Create a fallback/initial user object
+    final initialUser = MadiUser(
+      id: firebaseUser.uid,
+      name: nameOverride ?? firebaseUser.displayName ?? firebaseUser.email?.split('@')[0] ?? 'User',
+      username: firebaseUser.email?.split('@')[0] ?? 'user',
+      email: firebaseUser.email ?? '',
+      bio: '', // Default empty bio
     );
+
+    try {
+      final docRef = _firestore.collection('users').doc(firebaseUser.uid);
+      final doc = await docRef.get().timeout(const Duration(seconds: 5));
+
+      print('DEBUG: [Full Sync] Ensuring storage for UID: ${firebaseUser.uid}');
+
+      if (!doc.exists) {
+        print('DEBUG: [Full Sync] Creating NEW user document in Firestore');
+        final userData = initialUser.toJson();
+        // Specifically add fields requested by the user
+        userData['uid'] = firebaseUser.uid;
+        userData['name'] = initialUser.name;
+        userData['username'] = initialUser.username;
+        userData['email'] = initialUser.email;
+        userData['bio'] = initialUser.bio;
+        userData['createdAt'] = FieldValue.serverTimestamp();
+        
+        await docRef.set(userData);
+        return initialUser;
+      } else {
+        print('DEBUG: [Full Sync] Existing document found in Firestore');
+        return MadiUser.fromJson(doc.data() as Map<String, dynamic>, doc.id);
+      }
+    } catch (e) {
+      print('DEBUG WARNING: [Full Sync] Firestore sync failed: $e');
+      return initialUser;
+    }
   }
 
   /// Register a new account.
@@ -78,44 +96,35 @@ class AuthService extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    // Simulate network delay.
-    await Future.delayed(const Duration(milliseconds: 800));
+    try {
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
 
-    if (email.isEmpty || password.isEmpty || name.isEmpty) {
+      final user = credential.user;
+      if (user != null) {
+        // Set display name in Firebase Auth
+        await user.updateDisplayName(name.trim());
+        
+        // Manual sync after creation to ensure name is set correctly
+        print('DEBUG: User created: ${user.uid}');
+        _currentUser = await _ensureUserStored(user, nameOverride: name.trim());
+        
+        _state = AuthState.authenticated;
+        notifyListeners();
+        return _currentUser;
+      }
+    } on FirebaseAuthException catch (e) {
       _state = AuthState.error;
-      _errorMessage = 'All fields are required.';
+      _errorMessage = e.message;
       notifyListeners();
-      return null;
-    }
-
-    if (_accounts.containsKey(email.toLowerCase())) {
+    } catch (e) {
       _state = AuthState.error;
-      _errorMessage = 'An account with this email already exists.';
+      _errorMessage = 'An unexpected error occurred.';
       notifyListeners();
-      return null;
     }
-
-    if (password.length < 6) {
-      _state = AuthState.error;
-      _errorMessage = 'Password must be at least 6 characters.';
-      notifyListeners();
-      return null;
-    }
-
-    final user = MadiUser(name: name, madiCredits: 3.0);
-    _accounts[email.toLowerCase()] = _MockAccount(
-      email: email.toLowerCase(),
-      password: password,
-      user: user,
-    );
-
-    _currentUser = user;
-    _state = AuthState.authenticated;
-    _authStateController.add(user);
-    notifyListeners();
-
-    debugPrint('✅ Sign up: ${user.name} (${email.toLowerCase()})');
-    return user;
+    return null;
   }
 
   /// Sign in with email and password.
@@ -127,43 +136,33 @@ class AuthService extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 800));
+    try {
+      final credential = await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
 
-    final account = _accounts[email.toLowerCase()];
-    if (account == null || account.password != password) {
+      if (credential.user != null) {
+        print('DEBUG: User signed in: ${credential.user!.uid}');
+        // Sync handled by the listener
+        return _currentUser;
+      }
+    } on FirebaseAuthException catch (e) {
       _state = AuthState.error;
-      _errorMessage = 'Invalid email or password.';
+      _errorMessage = e.message;
       notifyListeners();
-      return null;
+    } catch (e) {
+      _state = AuthState.error;
+      _errorMessage = 'An unexpected error occurred.';
+      notifyListeners();
     }
-
-    _currentUser = account.user;
-    _state = AuthState.authenticated;
-    _authStateController.add(account.user);
-    notifyListeners();
-
-    debugPrint('✅ Sign in: ${account.user.name}');
-    return account.user;
+    return null;
   }
 
   /// Sign out the current user.
   Future<void> signOut() async {
-    _currentUser = null;
-    _state = AuthState.unauthenticated;
-    _authStateController.add(null);
-    notifyListeners();
-    debugPrint('👋 Signed out');
-  }
-
-  /// Auto-login for demo (skip the login screen).
-  void autoLoginForDemo() {
-    final account = _accounts['madi@madibook.kz'];
-    if (account != null) {
-      _currentUser = account.user;
-      _state = AuthState.authenticated;
-      _authStateController.add(account.user);
-      notifyListeners();
-    }
+    await _auth.signOut();
+    print('DEBUG: Signed out');
   }
 
   @override
@@ -171,17 +170,4 @@ class AuthService extends ChangeNotifier {
     _authStateController.close();
     super.dispose();
   }
-}
-
-/// Internal mock account record.
-class _MockAccount {
-  final String email;
-  final String password;
-  final MadiUser user;
-
-  const _MockAccount({
-    required this.email,
-    required this.password,
-    required this.user,
-  });
 }

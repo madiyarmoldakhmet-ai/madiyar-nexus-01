@@ -29,7 +29,7 @@ class AiChatService {
 
   /// System prompt that defines the AI Mentor's personality.
   static const String _systemPrompt = '''
-You are "Madi Mentor" — a friendly, supportive AI tutor inside Madibook, 
+You are "Madi Mentor" — a friendly, supportive AI tutor inside Nexus, 
 the #1 skill-sharing platform in Kazakhstan. Your role:
 
 1. Help students learn Math, Physics, and English with clear explanations.
@@ -108,7 +108,7 @@ education should be free and peer-to-peer.
         "FPV is the ultimate combination of engineering and art! 🚁\n\n"
             "Building your first quad teaches you electronics (ESCs, flight controllers), "
             "software (Betaflight config), and physics (thrust-to-weight ratio) all at once.\n\n"
-            "Madiyar started with FPV racing — it's in Madibook's DNA! Check the Journey tab for his story.",
+            "Madiyar started with FPV racing — it's in Nexus's DNA! Check the Journey tab for his story.",
         "FPV flying is addictive! 🏎️💨\n\n"
             "Start with a simulator (Liftoff or Velocidrone) before flying real quads. "
             "You'll save hundreds of dollars in crashed parts. Trust me.\n\n"
@@ -126,12 +126,12 @@ education should be free and peer-to-peer.
 
     // ── Madi-Credits ──
     if (_matchesAny(lowerMsg, ['credit', 'madi-credit', 'earn', 'points', 'xp'])) {
-      return "Madi-Credits are the heart of Madibook! 💰\n\n"
+      return "Madi-Credits are the heart of Nexus! 💰\n\n"
           "Here's how to earn them:\n"
           "• **Teach someone** for 1 hour → earn 1 MC\n"
           "• **Complete quizzes** in the Academy → 10 XP = 1 MC\n"
           "• **Help in chat** → build your reputation for more swap requests\n\n"
-          "The more you give, the more you can learn. That's the Madibook way! 🌍";
+          "The more you give, the more you can learn. That's the Nexus way! 🌍";
     }
 
     // ── Greetings ──

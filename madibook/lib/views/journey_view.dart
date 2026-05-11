@@ -67,7 +67,7 @@ class JourneyView extends StatelessWidget {
                       _legendChip('FPV Piloting', MadiColors.sky),
                       _legendChip('Robotics', MadiColors.emerald),
                       _legendChip('Hacking', MadiColors.rose),
-                      _legendChip('Madibook', MadiColors.gold),
+                      _legendChip('Nexus', MadiColors.gold),
                     ],
                   ),
                 ],

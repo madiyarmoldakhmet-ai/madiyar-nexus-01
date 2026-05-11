@@ -1,7 +1,8 @@
 import 'package:uuid/uuid.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'skill_model.dart';
 
-/// Represents a Madibook user profile.
+/// Represents a Nexus user profile.
 ///
 /// Each user has:
 /// - A [name] and optional [bio] and [avatarUrl]
@@ -11,6 +12,8 @@ import 'skill_model.dart';
 class MadiUser {
   final String id;
   final String name;
+  final String username;
+  final String email;
   final String bio;
   final String location;
   final String? avatarUrl;
@@ -22,10 +25,12 @@ class MadiUser {
   MadiUser({
     String? id,
     required this.name,
+    this.username = '',
+    this.email = '',
     this.bio = '',
     this.location = '',
     this.avatarUrl,
-    this.madiCredits = 3.0, // New users get 3 starter credits
+    this.madiCredits = 3.0,
     List<Skill>? offerings,
     List<Skill>? seekings,
     DateTime? joinedAt,
@@ -47,10 +52,13 @@ class MadiUser {
   }
 
   /// Create a MadiUser from a JSON map (backend deserialization).
-  factory MadiUser.fromJson(Map<String, dynamic> json) {
+  factory MadiUser.fromJson(Map<String, dynamic> json, [String? docId]) {
+    final id = json['id'] as String? ?? json['uid'] as String? ?? docId ?? '';
     return MadiUser(
-      id: json['id'] as String,
-      name: json['name'] as String,
+      id: id,
+      name: json['name'] as String? ?? 'User',
+      username: json['username'] as String? ?? json['name'] as String? ?? 'user',
+      email: json['email'] as String? ?? '',
       bio: json['bio'] as String? ?? '',
       location: json['location'] as String? ?? '',
       avatarUrl: json['avatar_url'] as String?,
@@ -63,10 +71,15 @@ class MadiUser {
               ?.map((s) => Skill.fromJson(s as Map<String, dynamic>))
               .toList() ??
           [],
-      joinedAt: json['joined_at'] != null
-          ? DateTime.parse(json['joined_at'] as String)
-          : null,
+      joinedAt: _parseDateTime(json['joined_at'] ?? json['createdAt']),
     );
+  }
+
+  static DateTime? _parseDateTime(dynamic value) {
+    if (value == null) return null;
+    if (value is String) return DateTime.tryParse(value);
+    if (value is Timestamp) return value.toDate();
+    return null;
   }
 
   /// Serialize to JSON map for backend persistence.
@@ -74,6 +87,8 @@ class MadiUser {
     return {
       'id': id,
       'name': name,
+      'username': username,
+      'email': email,
       'bio': bio,
       'location': location,
       'avatar_url': avatarUrl,
@@ -87,6 +102,8 @@ class MadiUser {
   /// Returns a copy with modified fields — useful for immutable state updates.
   MadiUser copyWith({
     String? name,
+    String? username,
+    String? email,
     String? bio,
     String? location,
     String? avatarUrl,
@@ -97,6 +114,8 @@ class MadiUser {
     return MadiUser(
       id: id,
       name: name ?? this.name,
+      username: username ?? this.username,
+      email: email ?? this.email,
       bio: bio ?? this.bio,
       location: location ?? this.location,
       avatarUrl: avatarUrl ?? this.avatarUrl,

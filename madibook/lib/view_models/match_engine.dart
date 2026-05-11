@@ -28,7 +28,7 @@ class MatchResult {
       'skills: ${matchedSkills.map((s) => s.name).join(', ')})';
 }
 
-/// The core matching engine for Madibook.
+/// The core matching engine for Nexus.
 ///
 /// Given a current user and a pool of all users, it finds:
 /// - **Forward matches**: others who OFFER what the current user SEEKS.

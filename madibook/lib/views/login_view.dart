@@ -43,7 +43,7 @@ class _LoginViewState extends State<LoginView> {
                       colors: [MadiColors.goldShimmer, MadiColors.gold],
                     ).createShader(bounds),
                     child: const Text(
-                      'Madibook',
+                      'Nexus',
                       style: TextStyle(
                         fontSize: 42,
                         fontWeight: FontWeight.w800,
@@ -172,7 +172,7 @@ class _LoginViewState extends State<LoginView> {
                   // Demo login shortcut
                   OutlinedButton.icon(
                     onPressed: () {
-                      _emailController.text = 'madi@madibook.kz';
+                      _emailController.text = 'madi@nexus.kz';
                       _passwordController.text = 'madi123';
                       _handleSubmit();
                     },

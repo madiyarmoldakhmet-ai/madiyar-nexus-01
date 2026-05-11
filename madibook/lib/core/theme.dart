@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'constants.dart';
 
-/// Madibook Material 3 Theme
+/// Nexus Material 3 Theme
 /// Dark-first design with gold accents and premium typography.
 class MadiTheme {
   MadiTheme._();
