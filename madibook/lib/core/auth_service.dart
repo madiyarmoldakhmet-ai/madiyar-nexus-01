@@ -116,6 +116,11 @@ class AuthService extends ChangeNotifier {
         return _currentUser;
       }
     } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use') {
+        _errorMessage = 'ACCOUNT_EXISTS';
+        notifyListeners();
+        return await signIn(email: email, password: password);
+      }
       _state = AuthState.error;
       _errorMessage = e.message;
       notifyListeners();

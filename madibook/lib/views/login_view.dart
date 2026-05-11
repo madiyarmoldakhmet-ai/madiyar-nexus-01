@@ -226,18 +226,31 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-  void _handleSubmit() {
+  void _handleSubmit() async {
     final auth = context.read<AuthService>();
     if (_isRegister) {
-      auth.signUp(
+      await auth.signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text,
         name: _nameController.text.trim(),
       );
     } else {
-      auth.signIn(
+      await auth.signIn(
         email: _emailController.text.trim(),
         password: _passwordController.text,
+      );
+    }
+
+    if (mounted && auth.errorMessage == 'ACCOUNT_EXISTS') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Этот аккаунт уже есть, пробуем войти...',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+          ),
+          backgroundColor: MadiColors.gold,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     }
   }
