@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
 import '../models/user_model.dart';
 
-/// Manages Madi-Credit transactions.
+/// Manages Nexus-Credit transactions.
 ///
 /// All credit mutations go through this class so that:
 /// 1. Business rules are centralized (minimum balance, validation).
 /// 2. It's trivial to swap in a backend API call later.
 /// 3. The UI reactively updates via ChangeNotifier.
 class CreditManager extends ChangeNotifier {
-  /// Transfer 1 Madi-Credit from [learner] to [teacher].
+  /// Transfer 1 Nexus-Credit from [learner] to [teacher].
   ///
   /// Returns `true` if the transfer succeeded.
   /// Returns `false` if the learner has insufficient credits.

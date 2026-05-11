@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/constants.dart';
 
 /// A premium gold-styled digital wallet widget showing the user's
-/// Madi-Credit balance with a shimmering gradient and subtle animation.
+/// Nexus-Credit balance with a shimmering gradient and subtle animation.
 class CreditWallet extends StatefulWidget {
   final double balance;
 
@@ -107,7 +107,7 @@ class _CreditWalletState extends State<CreditWallet>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Madi-Credits',
+                            'Nexus-Credits',
                             style: Theme.of(context)
                                 .textTheme
                                 .labelMedium

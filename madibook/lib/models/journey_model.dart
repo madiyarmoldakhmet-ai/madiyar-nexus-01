@@ -114,7 +114,7 @@ class JourneyMilestone {
           title: 'Nexus — The Vision',
           description:
               'Conceived the idea for Nexus: a "Human Library" where people '
-              'exchange knowledge using Madi-Credits. No money, no gatekeepers — '
+              'exchange knowledge using Nexus-Credits. No money, no gatekeepers — '
               'just humans teaching humans. The mission: make education free and peer-to-peer.',
           date: DateTime(2024, 1, 15),
           category: 'Nexus',

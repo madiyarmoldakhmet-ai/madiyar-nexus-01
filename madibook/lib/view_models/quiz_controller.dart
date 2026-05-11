@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import '../models/quiz_model.dart';
 
-/// Controls quiz sessions, XP tracking, and Madi-Credit conversion.
+/// Controls quiz sessions, XP tracking, and Nexus-Credit conversion.
 ///
-/// Conversion rate: 10 XP = 1 Madi-Credit.
+/// Conversion rate: 10 XP = 1 Nexus-Credit.
 class QuizController extends ChangeNotifier {
   // ── State ──
   QuizTrack? _activeTrack;

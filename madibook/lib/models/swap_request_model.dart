@@ -13,7 +13,7 @@ enum SwapStatus {
 ///
 /// User A (requester) wants to learn [skillRequested] from User B (receiver).
 /// In return, User A offers to teach [skillOffered].
-/// When the session completes, 1 Madi-Credit is transferred from learner to teacher.
+/// When the session completes, 1 Nexus-Credit is transferred from learner to teacher.
 class SwapRequest {
   final String id;
   final String requesterId;

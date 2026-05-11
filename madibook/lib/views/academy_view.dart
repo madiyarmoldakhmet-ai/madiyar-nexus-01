@@ -150,7 +150,7 @@ class AcademyView extends StatelessWidget {
                         size: 14, color: MadiColors.gold),
                     const SizedBox(width: 4),
                     Text(
-                      '${quiz.madiCreditsEarned} Madi-Credits earned',
+                      '${quiz.madiCreditsEarned} Nexus-Credits earned',
                       style: TextStyle(
                         color: MadiColors.gold,
                         fontSize: 13,
@@ -161,7 +161,7 @@ class AcademyView extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '10 XP = 1 Madi-Credit',
+                  '10 XP = 1 Nexus-Credit',
                   style: TextStyle(
                     color: MadiColors.textMuted,
                     fontSize: 11,

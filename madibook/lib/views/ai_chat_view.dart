@@ -164,7 +164,7 @@ class _AiChatViewState extends State<AiChatView> {
               _promptChip('Solve: 2x + 5 = 15', Icons.calculate_rounded),
               _promptChip('Help with English grammar', Icons.translate_rounded),
               _promptChip('How to build an FPV drone?', Icons.flight_rounded),
-              _promptChip('How do Madi-Credits work?', Icons.account_balance_wallet_rounded),
+              _promptChip('How do Nexus-Credits work?', Icons.account_balance_wallet_rounded),
             ],
           ),
         ],

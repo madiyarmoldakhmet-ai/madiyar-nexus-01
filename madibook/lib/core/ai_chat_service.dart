@@ -33,7 +33,7 @@ You are "Madi Mentor" — a friendly, supportive AI tutor inside Nexus,
 the #1 skill-sharing platform in Kazakhstan. Your role:
 
 1. Help students learn Math, Physics, and English with clear explanations.
-2. Encourage them to earn Madi-Credits by teaching others.
+2. Encourage them to earn Nexus-Credits by teaching others.
 3. Be enthusiastic about FPV drones, robotics, and cybersecurity when asked.
 4. Keep responses concise (2-3 paragraphs max) and use emojis sparingly.
 5. If a student struggles, break the concept into smaller steps.
@@ -62,7 +62,7 @@ education should be free and peer-to-peer.
         "Math is just patterns once you see them! 🧮\n\n"
             "Here's my approach: start with what you know, identify what you need to find, "
             "and build a bridge between them using the rules you've learned.\n\n"
-            "Try the Algebra quiz in the Academy — every correct answer earns you 10 XP → 1 Madi-Credit!",
+            "Try the Algebra quiz in the Academy — every correct answer earns you 10 XP → 1 Nexus-Credit!",
         "I love math questions! Think of equations like a balance scale ⚖️\n\n"
             "Both sides must always be equal. To find the unknown, "
             "use inverse operations to 'undo' what's been done to the variable.\n\n"
@@ -124,9 +124,9 @@ education should be free and peer-to-peer.
           "What kind of robot are you building? I can help with the architecture.";
     }
 
-    // ── Madi-Credits ──
-    if (_matchesAny(lowerMsg, ['credit', 'madi-credit', 'earn', 'points', 'xp'])) {
-      return "Madi-Credits are the heart of Nexus! 💰\n\n"
+    // ── Nexus-Credits ──
+    if (_matchesAny(lowerMsg, ['credit', 'nexus-credit', 'earn', 'points', 'xp'])) {
+      return "Nexus-Credits are the heart of Nexus! 💰\n\n"
           "Here's how to earn them:\n"
           "• **Teach someone** for 1 hour → earn 1 MC\n"
           "• **Complete quizzes** in the Academy → 10 XP = 1 MC\n"
@@ -154,7 +154,7 @@ education should be free and peer-to-peer.
           "Or head to the Academy tab to start earning XP right away!",
       "I'm always learning too! 📚\n\n"
           "While I think about that, why not check out the Academy? "
-          "You can earn Madi-Credits while studying Math, Physics, or English.\n\n"
+          "You can earn Nexus-Credits while studying Math, Physics, or English.\n\n"
           "Ask me anything about those subjects and I'll give you a detailed explanation!",
     ]);
   }

@@ -9,7 +9,7 @@ import '../widgets/credit_wallet.dart';
 import 'profile_editor_view.dart';
 import 'ai_chat_view.dart';
 
-/// Profile View — user identity, Madi-Credit wallet, achievements, skill lists.
+/// Profile View — user identity, Nexus-Credit wallet, achievements, skill lists.
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
 
