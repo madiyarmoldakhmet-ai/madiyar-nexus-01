@@ -127,8 +127,8 @@ class _ThreadListScreen extends StatelessWidget {
                           .collection('chats')
                           .doc(thread.id)
                           .collection('messages')
+                          .where('senderId', isEqualTo: thread.otherId(myId))
                           .where('isRead', isEqualTo: false)
-                          .where('senderId', isNotEqualTo: myId)
                           .snapshots(),
                       builder: (context, snapshot) {
                         int unread = 0;
