@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:provider/provider.dart';
@@ -24,25 +26,41 @@ import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  debugPrint('🚀 App starting...');
+  debugPrint('===> [DEBUG] 🚀 App starting... WidgetsFlutterBinding initialized.');
   try {
     if (Firebase.apps.isEmpty) {
-      debugPrint('🔥 Initializing Firebase...');
+      debugPrint('===> [DEBUG] 🔥 Начинаем инициализацию Firebase...');
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       ).timeout(const Duration(seconds: 10), onTimeout: () {
-        debugPrint('⚠️ Firebase initialization timed out!');
+        debugPrint('===> [DEBUG] ⚠️ Firebase initialization timed out!');
         return Firebase.app(); // Return existing app if possible
       });
-      debugPrint('🔥 Firebase initialized successfully');
+      debugPrint('===> [DEBUG] 🔥 Firebase готов!');
+
+      if (kIsWeb) {
+        debugPrint("===> [DEBUG] Настройка Firestore для Web...");
+        try {
+          FirebaseFirestore.instance.settings = Settings(
+            persistenceEnabled: true,
+            // ssl and experimentalForceLongPolling are removed as they are invalid in cloud_firestore 5.6.12
+          );
+          debugPrint("===> [DEBUG] Firestore Web settings applied (without invalid parameters)");
+        } catch (e) {
+          debugPrint("===> [DEBUG] Ошибка настройки Firestore: $e");
+        }
+      }
     }
     
     // Initialize notifications
-    debugPrint('🔔 Initializing Notifications...');
+    debugPrint('===> [DEBUG] 🔔 Начинаем инициализацию Notifications...');
     await NotificationService().initialize();
+    debugPrint('===> [DEBUG] 🔔 Notifications готовы!');
   } catch (e) {
-    debugPrint('❌ Initialization error: $e');
+    debugPrint('===> [DEBUG] ❌ Initialization error: $e');
   }
+  
+  debugPrint('===> [DEBUG] Запуск runApp(NexusApp)...');
   runApp(const NexusApp());
 }
 
@@ -87,10 +105,11 @@ class AuthGate extends StatelessWidget {
     
     return Consumer<AuthService>(
       builder: (context, authService, child) {
-        debugPrint('🛡️ AuthGate: Current state: ${authService.state}');
+        debugPrint('===> [DEBUG] 🛡️ AuthGate: Current state: ${authService.state}');
 
         // 1. Show spinner ONLY in the very initial state
         if (authService.state == AuthState.initial) {
+          debugPrint('===> [DEBUG] 🛡️ AuthGate: Render Spinner (initial state)');
           return const Scaffold(
             body: Center(
               child: CircularProgressIndicator(color: MadiColors.gold),
@@ -100,11 +119,13 @@ class AuthGate extends StatelessWidget {
 
         // 2. Handle Errors or Unauthenticated (redirect to Login)
         if (authService.state == AuthState.error || authService.state == AuthState.unauthenticated) {
+          debugPrint('===> [DEBUG] 🛡️ AuthGate: Render LoginView (error/unauthenticated)');
           return const LoginView();
         }
 
         // 3. Handle Loading (e.g. during sign in process)
         if (authService.state == AuthState.loading) {
+          debugPrint('===> [DEBUG] 🛡️ AuthGate: Render Spinner (loading state)');
           return const Scaffold(
             body: Center(
               child: CircularProgressIndicator(color: MadiColors.bloodRed),
@@ -115,6 +136,7 @@ class AuthGate extends StatelessWidget {
         // 4. Authenticated state
         final user = authService.currentUser;
         if (user != null) {
+          debugPrint('===> [DEBUG] 🛡️ AuthGate: User is Authenticated. Rendering NexusShell...');
           // Sync user to AppState
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (appState.currentUser != user) {
@@ -125,6 +147,7 @@ class AuthGate extends StatelessWidget {
         }
         
         // Fallback
+        debugPrint('===> [DEBUG] 🛡️ AuthGate: Fallback. Rendering LoginView...');
         return const LoginView();
       },
     );
