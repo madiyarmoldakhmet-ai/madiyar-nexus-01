@@ -116,12 +116,16 @@ class ChatService extends ChangeNotifier {
     
     await docRef.set(payload);
 
-    // Also update thread metadata to show it exists and maybe update unreadCount
-    // For simplicity, we just ensure the thread doc exists
-    _firestore.collection('chats').doc(threadId).set({
-      'lastMessageText': content,
-      'lastTimestamp': FieldValue.serverTimestamp(),
+    // 2. UPDATE THE PARENT CHAT DOCUMENT (Make it "real" and sync status)
+    await _firestore.collection('chats').doc(threadId).set({
+      'lastMessage': content,
+      'updatedAt': FieldValue.serverTimestamp(),
+      'isRead': false,           // This flag triggers the badge logic
+      'senderId': senderId,      // Who sent the message
+      'receiverId': receiverId,  // Who should see the badge
     }, SetOptions(merge: true));
+
+    debugPrint('===> [DEBUG] ✅ Thread $threadId updated in Firestore');
   }
 
   /// Mark messages as read in Firestore.
@@ -137,7 +141,14 @@ class ChatService extends ChangeNotifier {
     for (var doc in unreadQuery.docs) {
       batch.update(doc.reference, {'isRead': true});
     }
+    
+    // Also update the parent document
+    batch.update(_firestore.collection('chats').doc(threadId), {
+      'isRead': true,
+    });
+
     await batch.commit();
+    debugPrint('===> [DEBUG] ✅ Thread $threadId marked as read');
   }
 
   int totalUnread(String userId) {
