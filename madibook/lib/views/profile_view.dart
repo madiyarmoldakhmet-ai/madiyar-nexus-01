@@ -8,6 +8,8 @@ import '../core/auth_service.dart';
 import '../widgets/credit_wallet.dart';
 import 'profile_editor_view.dart';
 import 'ai_chat_view.dart';
+import '../widgets/anime_background.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Profile View — user identity, Nexus-Credit wallet, achievements, skill lists.
 class ProfileView extends StatelessWidget {
@@ -21,19 +23,25 @@ class ProfileView extends StatelessWidget {
         if (user == null) {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
-        return Scaffold(
-          body: CustomScrollView(
+        return AnimeBackground(
+          assetPath: 'assets/images/backgrounds/bg_profile.png',
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
               SliverAppBar(
                 expandedHeight: 80,
                 pinned: true,
-                backgroundColor: MadiColors.scaffoldDark,
+                backgroundColor: Colors.transparent,
                 title: Text('My Profile',
-                    style: Theme.of(context).textTheme.headlineSmall),
+                    style: GoogleFonts.oswald(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    )),
                 actions: [
                   IconButton(
-                    icon: const Icon(Icons.edit_rounded),
+                    icon: const Icon(Icons.edit_rounded, color: MadiColors.bloodRed),
                     tooltip: 'Edit Profile',
                     onPressed: () => Navigator.push(
                       context,
@@ -53,7 +61,7 @@ class ProfileView extends StatelessWidget {
                       const SizedBox(height: 8),
                       _buildProfileCard(context, user),
                       const SizedBox(height: MadiSpacing.lg),
-                      CreditWallet(balance: user.madiCredits),
+                      CreditWallet(balance: user.nexusCredits),
                       const SizedBox(height: MadiSpacing.lg),
 
                       // AI Mentor quick access
@@ -90,9 +98,9 @@ class ProfileView extends StatelessWidget {
                           icon: const Icon(Icons.logout_rounded, size: 18),
                           label: const Text('Sign Out'),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: MadiColors.rose,
+                            foregroundColor: MadiColors.bloodRed,
                             side: BorderSide(
-                                color: MadiColors.rose.withValues(alpha: 0.3)),
+                                color: MadiColors.bloodRed.withValues(alpha: 0.3)),
                           ),
                         ),
                       ),
@@ -104,7 +112,8 @@ class ProfileView extends StatelessWidget {
               ),
             ],
           ),
-        );
+        ),
+      );
       },
     );
   }

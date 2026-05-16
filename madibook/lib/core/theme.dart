@@ -11,73 +11,77 @@ class MadiTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: MadiColors.scaffoldDark,
+      scaffoldBackgroundColor: Colors.transparent,
+      canvasColor: Colors.transparent,
       colorScheme: const ColorScheme.dark(
-        primary: MadiColors.gold,
-        onPrimary: Colors.black,
-        secondary: MadiColors.indigo,
+        primary: MadiColors.bloodRed,
+        onPrimary: Colors.white,
+        secondary: MadiColors.bloodRed,
         onSecondary: Colors.white,
         surface: MadiColors.surfaceDark,
         onSurface: MadiColors.textPrimary,
         error: MadiColors.rose,
       ),
-      textTheme: GoogleFonts.interTextTheme(
+      textTheme: GoogleFonts.coveredByYourGraceTextTheme(
         ThemeData.dark().textTheme,
       ).copyWith(
-        headlineLarge: GoogleFonts.outfit(
+        headlineLarge: GoogleFonts.oswald(
           fontSize: 32,
           fontWeight: FontWeight.w700,
-          color: MadiColors.textPrimary,
-          letterSpacing: -0.5,
+          color: MadiColors.bloodRed,
+          letterSpacing: 1,
+          shadows: [
+            const Shadow(color: MadiColors.bloodRed, blurRadius: 10),
+          ],
         ),
-        headlineMedium: GoogleFonts.outfit(
+        headlineMedium: GoogleFonts.oswald(
           fontSize: 24,
           fontWeight: FontWeight.w600,
-          color: MadiColors.textPrimary,
-          letterSpacing: -0.3,
+          color: MadiColors.bloodRed,
+          letterSpacing: 0.5,
         ),
-        headlineSmall: GoogleFonts.outfit(
+        headlineSmall: GoogleFonts.oswald(
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: MadiColors.textPrimary,
         ),
-        titleLarge: GoogleFonts.inter(
+        titleLarge: GoogleFonts.oswald(
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: MadiColors.textPrimary,
         ),
-        titleMedium: GoogleFonts.inter(
+        titleMedium: GoogleFonts.oswald(
           fontSize: 16,
           fontWeight: FontWeight.w500,
           color: MadiColors.textPrimary,
         ),
-        bodyLarge: GoogleFonts.inter(
+        bodyLarge: GoogleFonts.coveredByYourGrace(
+          fontSize: 18,
+          fontWeight: FontWeight.w400,
+          color: MadiColors.textSecondary,
+        ),
+        bodyMedium: GoogleFonts.coveredByYourGrace(
           fontSize: 16,
           fontWeight: FontWeight.w400,
           color: MadiColors.textSecondary,
         ),
-        bodyMedium: GoogleFonts.inter(
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-          color: MadiColors.textSecondary,
-        ),
-        labelLarge: GoogleFonts.inter(
+        labelLarge: GoogleFonts.oswald(
           fontSize: 14,
           fontWeight: FontWeight.w600,
           color: MadiColors.textPrimary,
         ),
-        labelMedium: GoogleFonts.inter(
+        labelMedium: GoogleFonts.oswald(
           fontSize: 12,
           fontWeight: FontWeight.w500,
           color: MadiColors.textMuted,
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: MadiColors.scaffoldDark,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.outfit(
+        titleTextStyle: GoogleFonts.oswald(
           fontSize: 22,
           fontWeight: FontWeight.w700,
           color: MadiColors.textPrimary,
@@ -85,32 +89,35 @@ class MadiTheme {
         iconTheme: const IconThemeData(color: MadiColors.textPrimary),
       ),
       cardTheme: CardThemeData(
-        color: MadiColors.cardDark,
-        elevation: 0,
+        color: MadiColors.ghoulDark,
+        elevation: 10,
+        shadowColor: MadiColors.bloodRed.withValues(alpha: 0.3),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(MadiRadius.lg),
-          side: const BorderSide(color: MadiColors.border, width: 0.5),
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: MadiColors.bloodRed, width: 1.5),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: MadiColors.gold,
-          foregroundColor: Colors.black,
-          elevation: 0,
+          backgroundColor: MadiColors.bloodRed,
+          foregroundColor: Colors.white,
+          elevation: 5,
+          shadowColor: MadiColors.bloodRed,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(MadiRadius.md),
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(color: Colors.white24, width: 1),
           ),
-          textStyle: GoogleFonts.inter(
-            fontSize: 14,
+          textStyle: GoogleFonts.oswald(
+            fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: MadiColors.gold,
-          side: const BorderSide(color: MadiColors.gold, width: 1.5),
+          foregroundColor: MadiColors.bloodRed,
+          side: const BorderSide(color: MadiColors.bloodRed, width: 1.5),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(MadiRadius.md),
@@ -122,8 +129,8 @@ class MadiTheme {
         ),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: MadiColors.surfaceDark,
-        selectedItemColor: MadiColors.gold,
+        backgroundColor: Colors.transparent,
+        selectedItemColor: MadiColors.bloodRed,
         unselectedItemColor: MadiColors.textMuted,
         type: BottomNavigationBarType.fixed,
         showUnselectedLabels: true,
@@ -133,14 +140,33 @@ class MadiTheme {
         color: MadiColors.divider,
         thickness: 0.5,
       ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.transparent,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: const BorderSide(color: MadiColors.bloodRed, width: 1),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: const BorderSide(color: MadiColors.bloodRed, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: const BorderSide(color: MadiColors.bloodRed, width: 2),
+        ),
+        labelStyle: GoogleFonts.oswald(color: MadiColors.textMuted),
+        hintStyle: GoogleFonts.coveredByYourGrace(color: MadiColors.textMuted, fontSize: 16),
+      ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: MadiColors.cardDark,
-        contentTextStyle: GoogleFonts.inter(
+        backgroundColor: MadiColors.ghoulDark,
+        contentTextStyle: GoogleFonts.coveredByYourGrace(
           color: MadiColors.textPrimary,
-          fontSize: 14,
+          fontSize: 16,
         ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(MadiRadius.md),
+          borderRadius: BorderRadius.circular(15),
+          side: const BorderSide(color: MadiColors.bloodRed),
         ),
         behavior: SnackBarBehavior.floating,
       ),

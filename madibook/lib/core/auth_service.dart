@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
+import 'notification_service.dart';
 
 /// Authentication state.
 enum AuthState { initial, loading, authenticated, unauthenticated, error }
@@ -13,43 +14,101 @@ class AuthService extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   AuthState _state = AuthState.initial;
-  MadiUser? _currentUser;
+  NexusUser? _currentUser;
   String? _errorMessage;
 
   AuthState get state => _state;
-  MadiUser? get currentUser => _currentUser;
+  NexusUser? get currentUser => _currentUser;
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _state == AuthState.authenticated;
 
   /// Stream that emits the current user on auth state changes.
-  final StreamController<MadiUser?> _authStateController =
-      StreamController<MadiUser?>.broadcast();
-  Stream<MadiUser?> get authStateChanges => _authStateController.stream;
+  final StreamController<NexusUser?> _authStateController =
+      StreamController<NexusUser?>.broadcast();
+  Stream<NexusUser?> get authStateChanges => _authStateController.stream;
+
+  StreamSubscription? _userDocSubscription;
 
   AuthService() {
+    debugPrint('🔐 AuthService: Initializing...');
     // Listen to Firebase Auth state changes
-    _auth.authStateChanges().listen(_onAuthStateChanged);
+    _auth.authStateChanges().listen((user) {
+      debugPrint('🔐 AuthService: Firebase Auth state changed: ${user?.uid ?? "null"}');
+      _onAuthStateChanged(user);
+    }, onError: (e) {
+      debugPrint('❌ AuthService: Firebase Auth error: $e');
+      _state = AuthState.error;
+      _errorMessage = 'Firebase Auth Error: $e';
+      notifyListeners();
+    });
+    
+    // Safety timeout: if auth state doesn't change from initial within 3 seconds, it's likely a Firebase config issue
+    Future.delayed(const Duration(seconds: 3), () {
+      if (_state == AuthState.initial) {
+        debugPrint('⚠️ AuthService: Auth timeout! Current state still initial.');
+        _state = AuthState.error;
+        _errorMessage = 'Auth failed to initialize. Please check your internet connection or Firebase configuration.';
+        _authStateController.add(null);
+        notifyListeners();
+      }
+    });
   }
 
   Future<void> _onAuthStateChanged(User? firebaseUser) async {
+    _userDocSubscription?.cancel();
+    
     if (firebaseUser == null) {
       _currentUser = null;
       _state = AuthState.unauthenticated;
       _authStateController.add(null);
     } else {
-      // Sync user data from Firestore using our unified storage method
-      _currentUser = await _ensureUserStored(firebaseUser);
+      // Initialize state as loading while we fetch data
       _state = AuthState.authenticated;
-      _authStateController.add(_currentUser);
+      
+      // Start listening to the Firestore document for real-time updates
+      _userDocSubscription = _firestore
+          .collection('users')
+          .doc(firebaseUser.uid)
+          .snapshots()
+          .listen((snapshot) async {
+        if (snapshot.exists) {
+          _currentUser = NexusUser.fromJson(snapshot.data() as Map<String, dynamic>, snapshot.id);
+          _authStateController.add(_currentUser);
+          notifyListeners();
+        } else {
+          // If doc doesn't exist yet, create it
+          _currentUser = await _ensureUserStored(firebaseUser);
+          _authStateController.add(_currentUser);
+          notifyListeners();
+        }
+      });
+      
+      _userDocSubscription?.onError((error) {
+        debugPrint('Firestore User Doc Error: $error');
+        // If Firestore fails (e.g. permissions), fallback to initial user to prevent infinite loading
+        _currentUser = NexusUser(
+          id: firebaseUser.uid,
+          name: firebaseUser.displayName ?? 'Error User',
+          username: 'error_user',
+          email: firebaseUser.email ?? '',
+          bio: 'Error loading profile',
+        );
+        _state = AuthState.authenticated;
+        _authStateController.add(_currentUser);
+        notifyListeners();
+      });
+      
+      // Initial FCM token update
+      NotificationService().updateFcmToken(firebaseUser.uid);
     }
     notifyListeners();
   }
 
   /// Ensures the user document exists in Firestore.
   /// If it doesn't exist, it creates it with the required fields.
-  Future<MadiUser> _ensureUserStored(User firebaseUser, {String? nameOverride}) async {
+  Future<NexusUser> _ensureUserStored(User firebaseUser, {String? nameOverride}) async {
     // Create a fallback/initial user object
-    final initialUser = MadiUser(
+    final initialUser = NexusUser(
       id: firebaseUser.uid,
       name: nameOverride ?? firebaseUser.displayName ?? firebaseUser.email?.split('@')[0] ?? 'User',
       username: firebaseUser.email?.split('@')[0] ?? 'user',
@@ -61,10 +120,10 @@ class AuthService extends ChangeNotifier {
       final docRef = _firestore.collection('users').doc(firebaseUser.uid);
       final doc = await docRef.get().timeout(const Duration(seconds: 5));
 
-      print('DEBUG: [Full Sync] Ensuring storage for UID: ${firebaseUser.uid}');
+      debugPrint('DEBUG: [Full Sync] Ensuring storage for UID: ${firebaseUser.uid}');
 
       if (!doc.exists) {
-        print('DEBUG: [Full Sync] Creating NEW user document in Firestore');
+        debugPrint('DEBUG: [Full Sync] Creating NEW user document in Firestore');
         final userData = initialUser.toJson();
         // Specifically add fields requested by the user
         userData['uid'] = firebaseUser.uid;
@@ -77,17 +136,17 @@ class AuthService extends ChangeNotifier {
         await docRef.set(userData);
         return initialUser;
       } else {
-        print('DEBUG: [Full Sync] Existing document found in Firestore');
-        return MadiUser.fromJson(doc.data() as Map<String, dynamic>, doc.id);
+        debugPrint('DEBUG: [Full Sync] Existing document found in Firestore');
+        return NexusUser.fromJson(doc.data() as Map<String, dynamic>, doc.id);
       }
     } catch (e) {
-      print('DEBUG WARNING: [Full Sync] Firestore sync failed: $e');
+      debugPrint('DEBUG WARNING: [Full Sync] Firestore sync failed: $e');
       return initialUser;
     }
   }
 
   /// Register a new account.
-  Future<MadiUser?> signUp({
+  Future<NexusUser?> signUp({
     required String email,
     required String password,
     required String name,
@@ -108,7 +167,7 @@ class AuthService extends ChangeNotifier {
         await user.updateDisplayName(name.trim());
         
         // Manual sync after creation to ensure name is set correctly
-        print('DEBUG: User created: ${user.uid}');
+        debugPrint('DEBUG: User created: ${user.uid}');
         _currentUser = await _ensureUserStored(user, nameOverride: name.trim());
         
         _state = AuthState.authenticated;
@@ -133,7 +192,7 @@ class AuthService extends ChangeNotifier {
   }
 
   /// Sign in with email and password.
-  Future<MadiUser?> signIn({
+  Future<NexusUser?> signIn({
     required String email,
     required String password,
   }) async {
@@ -148,7 +207,7 @@ class AuthService extends ChangeNotifier {
       );
 
       if (credential.user != null) {
-        print('DEBUG: User signed in: ${credential.user!.uid}');
+        debugPrint('DEBUG: User signed in: ${credential.user!.uid}');
         // Sync handled by the listener
         return _currentUser;
       }
@@ -167,7 +226,7 @@ class AuthService extends ChangeNotifier {
   /// Sign out the current user.
   Future<void> signOut() async {
     await _auth.signOut();
-    print('DEBUG: Signed out');
+    debugPrint('DEBUG: Signed out');
   }
 
   @override

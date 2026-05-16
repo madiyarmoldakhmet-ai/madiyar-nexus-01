@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
+
 
 /// Represents a single AI chat message.
 class AiMessage {
@@ -27,21 +27,6 @@ class AiChatService {
   // static const String _apiKey = 'YOUR_API_KEY';
   // static const String _model = 'gpt-4o-mini'; // or 'gemini-pro'
 
-  /// System prompt that defines the AI Mentor's personality.
-  static const String _systemPrompt = '''
-You are "Madi Mentor" — a friendly, supportive AI tutor inside Nexus, 
-the #1 skill-sharing platform in Kazakhstan. Your role:
-
-1. Help students learn Math, Physics, and English with clear explanations.
-2. Encourage them to earn Nexus-Credits by teaching others.
-3. Be enthusiastic about FPV drones, robotics, and cybersecurity when asked.
-4. Keep responses concise (2-3 paragraphs max) and use emojis sparingly.
-5. If a student struggles, break the concept into smaller steps.
-6. Always end with an encouraging note or a follow-up question.
-
-You were created by Madiyar, a young developer from Kazakhstan who believes 
-education should be free and peer-to-peer.
-''';
 
   /// Generate a response from the AI mentor.
   ///
@@ -128,8 +113,8 @@ education should be free and peer-to-peer.
     if (_matchesAny(lowerMsg, ['credit', 'nexus-credit', 'earn', 'points', 'xp'])) {
       return "Nexus-Credits are the heart of Nexus! 💰\n\n"
           "Here's how to earn them:\n"
-          "• **Teach someone** for 1 hour → earn 1 MC\n"
-          "• **Complete quizzes** in the Academy → 10 XP = 1 MC\n"
+          "• **Teach someone** for 1 hour → earn 1 NC\n"
+          "• **Complete quizzes** in the Academy → 10 XP = 1 NC\n"
           "• **Help in chat** → build your reputation for more swap requests\n\n"
           "The more you give, the more you can learn. That's the Nexus way! 🌍";
     }

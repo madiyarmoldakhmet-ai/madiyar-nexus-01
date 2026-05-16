@@ -9,7 +9,7 @@ import '../models/skill_model.dart';
 /// - The list of [matchedSkills] that overlap
 /// - A [score] from 0.0 to 1.0 indicating match quality
 class MatchResult {
-  final MadiUser user;
+  final NexusUser user;
   final List<Skill> matchedSkills;
   final double score;
 
@@ -48,8 +48,8 @@ class MatchEngine extends ChangeNotifier {
   /// Results are sorted by match score (highest first).
   /// Perfect matches (mutual overlap) get a score boost.
   List<MatchResult> findMatches({
-    required MadiUser currentUser,
-    required List<MadiUser> allUsers,
+    required NexusUser currentUser,
+    required List<NexusUser> allUsers,
   }) {
     _isSearching = true;
     notifyListeners();
@@ -120,8 +120,8 @@ class MatchEngine extends ChangeNotifier {
 
   /// Convenience: get only "perfect" matches (score ≥ 0.8).
   List<MatchResult> findPerfectMatches({
-    required MadiUser currentUser,
-    required List<MadiUser> allUsers,
+    required NexusUser currentUser,
+    required List<NexusUser> allUsers,
   }) {
     final all = findMatches(currentUser: currentUser, allUsers: allUsers);
     return all.where((m) => m.isPerfectMatch).toList();

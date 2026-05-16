@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/constants.dart';
 import '../models/journey_model.dart';
 import '../widgets/timeline_card.dart';
+import '../widgets/anime_background.dart';
 
 /// Journey View — Madi's personal project timeline.
 class JourneyView extends StatelessWidget {
@@ -11,15 +12,18 @@ class JourneyView extends StatelessWidget {
   Widget build(BuildContext context) {
     final milestones = JourneyMilestone.madiJourney;
 
-    return Scaffold(
-      body: CustomScrollView(
+    return AnimeBackground(
+      assetPath: 'assets/images/kaneki_v2.jpg',
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
             expandedHeight: 140,
             floating: false,
             pinned: true,
-            backgroundColor: MadiColors.scaffoldDark,
+            backgroundColor: Colors.transparent,
             flexibleSpace: FlexibleSpaceBar(
               titlePadding:
                   const EdgeInsets.only(left: 20, bottom: 16, right: 20),
@@ -38,7 +42,7 @@ class JourneyView extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       MadiColors.gold.withValues(alpha: 0.12),
-                      MadiColors.scaffoldDark,
+                      Colors.transparent,
                     ],
                   ),
                 ),
@@ -124,6 +128,7 @@ class JourneyView extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

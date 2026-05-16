@@ -188,7 +188,7 @@ class QuizView extends StatelessWidget {
                           _resultStat(
                             icon: Icons.account_balance_wallet_rounded,
                             label: 'Credits',
-                            value: '+${quiz.sessionCreditsEarned} MC',
+                            value: '+${quiz.sessionCreditsEarned} NC',
                             color: MadiColors.gold,
                           ),
                         ],

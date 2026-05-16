@@ -8,6 +8,9 @@ import '../core/auth_service.dart';
 import '../models/message.dart';
 import '../widgets/message_bubble.dart';
 import 'user_search_screen.dart';
+import '../views/call_screen.dart';
+import '../widgets/anime_background.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -32,13 +35,18 @@ class _ChatScreenState extends State<ChatScreen> {
     if (text.isEmpty) return;
 
     final auth = context.read<AuthService>();
-    final senderId = auth.currentUser?.id ?? 'anonymous';
+    final user = auth.currentUser;
+    final senderId = user?.id ?? 'anonymous';
+    final senderName = user?.name ?? 'User';
+    final senderRole = user?.role.name ?? 'talent';
 
     _msgController.clear();
 
     await FirebaseFirestore.instance.collection('messages').add({
       'text': text,
       'senderId': senderId,
+      'senderName': senderName,
+      'senderRole': senderRole,
       'timestamp': FieldValue.serverTimestamp(),
     });
   }
@@ -48,22 +56,47 @@ class _ChatScreenState extends State<ChatScreen> {
     final auth = context.watch<AuthService>();
     final myId = auth.currentUser?.id ?? 'anonymous';
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: MadiColors.scaffoldDark,
-        title: const Text('Global Chat'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search_rounded, color: MadiColors.gold),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const UserSearchScreen()),
-              );
-            },
+    return AnimeBackground(
+      assetPath: 'assets/images/backgrounds/bg_chat.png',
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text(
+            'Global Chat',
+            style: GoogleFonts.oswald(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
-        ],
-      ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.search_rounded, color: MadiColors.bloodRed),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const UserSearchScreen()),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.videocam_rounded, color: MadiColors.bloodRed),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CallScreen(
+                      channelId: 'global_chat', // Temporary channel ID
+                      remoteUserName: 'Nexus Community',
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(width: 8),
+          ],
+        ),
       body: Column(
         children: [
           Expanded(
@@ -112,6 +145,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       content: message.text,
                       time: timeString,
                       isMine: message.senderId == myId,
+                      senderName: message.senderName,
+                      senderRole: message.senderRole,
                     );
                   },
                 );
@@ -167,6 +202,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

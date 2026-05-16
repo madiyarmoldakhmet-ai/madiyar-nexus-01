@@ -13,27 +13,27 @@ class CreditManager extends ChangeNotifier {
   /// Returns `true` if the transfer succeeded.
   /// Returns `false` if the learner has insufficient credits.
   bool transferCredit({
-    required MadiUser learner,
-    required MadiUser teacher,
+    required NexusUser learner,
+    required NexusUser teacher,
     double amount = 1.0,
   }) {
-    if (learner.madiCredits < amount) {
+    if (learner.nexusCredits < amount) {
       debugPrint(
-        '❌ Transfer failed: ${learner.name} has ${learner.madiCredits} credits, '
+        '❌ Transfer failed: ${learner.name} has ${learner.nexusCredits} credits, '
         'needs $amount',
       );
       return false;
     }
 
-    learner.madiCredits -= amount;
-    teacher.madiCredits += amount;
+    learner.nexusCredits -= amount;
+    teacher.nexusCredits += amount;
 
     debugPrint(
       '✅ Transferred $amount credit(s): ${learner.name} → ${teacher.name}',
     );
     debugPrint(
-      '   ${learner.name}: ${learner.madiCredits} | '
-      '${teacher.name}: ${teacher.madiCredits}',
+      '   ${learner.name}: ${learner.nexusCredits} | '
+      '${teacher.name}: ${teacher.nexusCredits}',
     );
 
     notifyListeners();
@@ -42,14 +42,14 @@ class CreditManager extends ChangeNotifier {
 
   /// Award bonus credits (e.g. sign-up bonus, referral, admin grant).
   /// Replace this with an API call to your backend for production.
-  void awardCredits(MadiUser user, double amount) {
-    user.madiCredits += amount;
+  void awardCredits(NexusUser user, double amount) {
+    user.nexusCredits += amount;
     debugPrint('🎁 Awarded $amount credit(s) to ${user.name}');
     notifyListeners();
   }
 
   /// Check if a user can afford a swap session.
-  bool canAfford(MadiUser user, {double cost = 1.0}) {
-    return user.madiCredits >= cost;
+  bool canAfford(NexusUser user, {double cost = 1.0}) {
+    return user.nexusCredits >= cost;
   }
 }

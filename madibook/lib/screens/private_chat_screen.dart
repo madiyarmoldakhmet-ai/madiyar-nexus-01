@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
@@ -37,7 +38,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
     List<String> ids = [uid1, uid2];
     ids.sort(); // ALPHABETICAL SORT
     final chatId = ids.join('_');
-    print('DEBUG: Generated Chat ID: $chatId (Sorted: ${ids[0]} and ${ids[1]})');
+    debugPrint('DEBUG: Generated Chat ID: $chatId (Sorted: ${ids[0]} and ${ids[1]})');
     return chatId;
   }
 
@@ -50,7 +51,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
     
     final chatId = _getChatId(myId, widget.otherUserId);
 
-    print('DEBUG: Sending message from $myId to ${widget.otherUserId} in room $chatId');
+    debugPrint('DEBUG: Sending message from $myId to ${widget.otherUserId} in room $chatId');
 
     _msgController.clear();
 

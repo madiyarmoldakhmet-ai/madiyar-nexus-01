@@ -3,11 +3,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Message {
   final String text;
   final String senderId;
+  final String senderName;
+  final String senderRole;
   final Timestamp timestamp;
 
   Message({
     required this.text,
     required this.senderId,
+    this.senderName = 'Anonymous',
+    this.senderRole = 'talent',
     required this.timestamp,
   });
 
@@ -15,7 +19,8 @@ class Message {
     return Message(
       text: json['text'] as String? ?? '',
       senderId: json['senderId'] as String? ?? '',
-      // In Firestore, if a message is just sent, its serverTimestamp might be null locally before sync.
+      senderName: json['senderName'] as String? ?? 'User',
+      senderRole: json['senderRole'] as String? ?? 'talent',
       timestamp: json['timestamp'] as Timestamp? ?? Timestamp.now(),
     );
   }
@@ -24,6 +29,8 @@ class Message {
     return {
       'text': text,
       'senderId': senderId,
+      'senderName': senderName,
+      'senderRole': senderRole,
       'timestamp': timestamp,
     };
   }

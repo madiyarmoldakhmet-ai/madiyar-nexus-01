@@ -52,7 +52,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
           }
 
           final allUsers = snapshot.data?.docs ?? [];
-          print('DEBUG: [Search] Total users in Firestore: ${allUsers.length}');
+          debugPrint('DEBUG: [Search] Total users in Firestore: ${allUsers.length}');
 
           final results = allUsers.where((doc) {
             final data = doc.data() as Map<String, dynamic>;
@@ -100,8 +100,31 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
                     child: Text(name[0].toUpperCase(), 
                       style: const TextStyle(color: Colors.white)),
                   ),
-                  title: Text(name, 
-                    style: const TextStyle(color: MadiColors.textPrimary)),
+                  title: Row(
+                    children: [
+                      Text(name, 
+                        style: const TextStyle(color: MadiColors.textPrimary)),
+                      if (user['role'] != null && user['role'] != 'talent') ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: user['role'] == 'expert' ? Colors.purpleAccent.withValues(alpha: 0.1) : MadiColors.emerald.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: user['role'] == 'expert' ? Colors.purpleAccent : MadiColors.emerald, width: 0.5),
+                          ),
+                          child: Text(
+                            user['role'].toString().toUpperCase(),
+                            style: TextStyle(
+                              color: user['role'] == 'expert' ? Colors.purpleAccent : MadiColors.emerald,
+                              fontSize: 8,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                   subtitle: Text(user['username'] ?? user['email'] ?? '',
                     style: const TextStyle(color: MadiColors.textMuted, fontSize: 12)),
                   trailing: const Icon(Icons.chat_outlined, color: MadiColors.gold),

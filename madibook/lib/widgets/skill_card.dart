@@ -133,6 +133,8 @@ class _SkillCardState extends State<SkillCard>
                                       const SizedBox(width: MadiSpacing.sm),
                                       _buildPerfectMatchBadge(),
                                     ],
+                                    const SizedBox(width: MadiSpacing.sm),
+                                    _buildRoleBadge(user),
                                   ],
                                 ),
                                 const SizedBox(height: 2),
@@ -218,7 +220,7 @@ class _SkillCardState extends State<SkillCard>
     );
   }
 
-  Widget _buildAvatar(MadiUser user) {
+  Widget _buildAvatar(NexusUser user) {
     return Container(
       width: 52,
       height: 52,
@@ -302,6 +304,32 @@ class _SkillCardState extends State<SkillCard>
             fontSize: 13,
             fontWeight: FontWeight.w700,
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRoleBadge(NexusUser user) {
+    final color = user.role == UserRole.expert
+        ? Colors.purpleAccent
+        : user.role == UserRole.mentor
+            ? MadiColors.emerald
+            : MadiColors.indigo;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(MadiRadius.full),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Text(
+        user.role.name.toUpperCase(),
+        style: TextStyle(
+          color: color,
+          fontSize: 9,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.5,
         ),
       ),
     );

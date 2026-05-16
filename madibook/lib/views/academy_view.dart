@@ -4,6 +4,7 @@ import '../core/constants.dart';
 import '../view_models/quiz_controller.dart';
 import '../widgets/xp_progress_bar.dart';
 import 'quiz_view.dart';
+import '../widgets/anime_background.dart';
 
 /// Academy View — Duolingo-style subject selector with progress.
 class AcademyView extends StatelessWidget {
@@ -19,14 +20,17 @@ class AcademyView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<QuizController>(
       builder: (context, quiz, _) {
-        return Scaffold(
-          body: CustomScrollView(
+        return AnimeBackground(
+          assetPath: 'assets/images/kaneki_v2.jpg',
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
               SliverAppBar(
                 expandedHeight: 80,
                 pinned: true,
-                backgroundColor: MadiColors.scaffoldDark,
+                backgroundColor: Colors.transparent,
                 title: Text('The Academy',
                     style: Theme.of(context).textTheme.headlineSmall),
               ),
@@ -78,6 +82,7 @@ class AcademyView extends StatelessWidget {
               ),
             ],
           ),
+        ),
         );
       },
     );
@@ -150,7 +155,7 @@ class AcademyView extends StatelessWidget {
                         size: 14, color: MadiColors.gold),
                     const SizedBox(width: 4),
                     Text(
-                      '${quiz.madiCreditsEarned} Nexus-Credits earned',
+                      '${quiz.nexusCreditsEarned} Nexus-Credits earned',
                       style: TextStyle(
                         color: MadiColors.gold,
                         fontSize: 13,

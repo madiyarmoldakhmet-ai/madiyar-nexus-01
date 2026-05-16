@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:async';
 import '../../domain/entities/message_entity.dart';
 import '../../domain/repositories/i_chat_repository.dart';
@@ -22,10 +23,10 @@ class FirebaseChatRepository implements IChatRepository {
           .collection('messages')
           .add(dto.toJson());
       
-      print('Sent message "${message.content}" to room $roomId via Firestore');
+      debugPrint('Sent message "${message.content}" to room $roomId via Firestore');
       return true;
     } catch (e) {
-      print('Error sending message: $e');
+      debugPrint('Error sending message: $e');
       return false;
     }
   }

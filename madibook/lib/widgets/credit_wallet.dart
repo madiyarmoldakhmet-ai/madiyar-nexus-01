@@ -195,7 +195,7 @@ class _CreditWalletState extends State<CreditWallet>
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Text(
-                          'MC',
+                          'NC',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
@@ -232,7 +232,7 @@ class _CreditWalletState extends State<CreditWallet>
                         context,
                         icon: Icons.arrow_upward_rounded,
                         label: 'Earned',
-                        value: '1h = 1 MC',
+                        value: '1h = 1 NC',
                         color: MadiColors.emerald,
                       ),
                       const SizedBox(width: MadiSpacing.xl),
@@ -240,7 +240,7 @@ class _CreditWalletState extends State<CreditWallet>
                         context,
                         icon: Icons.arrow_downward_rounded,
                         label: 'Spend',
-                        value: '1 MC = 1h',
+                        value: '1 NC = 1h',
                         color: MadiColors.amber,
                       ),
                     ],

@@ -12,12 +12,15 @@ class MadiColors {
   static const Color goldShimmer = Color(0xFFFFD700);
 
   // Background system
-  static const Color scaffoldDark = Color(0xFF0D0D1A);
-  static const Color surfaceDark = Color(0xFF161625);
-  static const Color cardDark = Color(0xFF1E1E32);
+  static const Color scaffoldDark = Color(0xFF0A0A0E);
+  static const Color surfaceDark = Color(0xFF12121A);
+  static const Color cardDark = Color(0xFF181824);
   static const Color cardGlass = Color(0x1AFFFFFF);
+  static const Color ghoulDark = Color(0xFF050508);
 
   // Accent palette
+  static const Color bloodRed = Color(0xFF8B0000); // Tokyo Ghoul / AoT Red
+  static const Color titanGrey = Color(0xFFD1D1D1);
   static const Color indigo = Color(0xFF6366F1);
   static const Color indigoLight = Color(0xFF818CF8);
   static const Color emerald = Color(0xFF10B981);
@@ -26,13 +29,13 @@ class MadiColors {
   static const Color sky = Color(0xFF0EA5E9);
 
   // Text colors
-  static const Color textPrimary = Color(0xFFF1F5F9);
-  static const Color textSecondary = Color(0xFF94A3B8);
-  static const Color textMuted = Color(0xFF64748B);
+  static const Color textPrimary = Colors.white;
+  static const Color textSecondary = Color(0xFFCCCCCC);
+  static const Color textMuted = Color(0xFFAAAAAA);
 
   // Border & divider
-  static const Color border = Color(0xFF2D2D44);
-  static const Color divider = Color(0xFF1E293B);
+  static const Color border = Color(0xFF333333);
+  static const Color divider = Color(0xFF222222);
 }
 
 class MadiSpacing {

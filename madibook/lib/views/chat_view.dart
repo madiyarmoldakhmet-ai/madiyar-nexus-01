@@ -6,6 +6,9 @@ import '../core/auth_service.dart';
 import '../view_models/chat_controller.dart';
 import '../view_models/app_state.dart';
 import '../widgets/message_bubble.dart';
+import '../widgets/anime_background.dart';
+import 'call_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Chat View — thread list + individual conversation.
 class ChatView extends StatelessWidget {
@@ -252,108 +255,151 @@ class _ConversationScreenState extends State<_ConversationScreen> {
     final otherName = thread?.otherName(myId) ?? 'Chat';
     final otherId = thread?.otherId(myId) ?? '';
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: MadiColors.scaffoldDark,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => chat.closeThread(),
-        ),
-        title: Text(otherName,
-            style: Theme.of(context).textTheme.titleLarge),
-      ),
-      body: Column(
-        children: [
-          // Messages
-          Expanded(
-            child: messages.isEmpty
-                ? Center(
-                    child: Text('Say hello! 👋',
-                        style: TextStyle(color: MadiColors.textMuted)),
-                  )
-                : ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(16),
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      final msg = messages[index];
-                      return MessageBubble(
-                        content: msg.content,
-                        time: DateFormat.Hm().format(msg.timestamp),
-                        isMine: msg.senderId == myId,
-                        isRead: msg.isRead,
-                      );
-                    },
-                  ),
+    return AnimeBackground(
+      assetPath: 'assets/images/backgrounds/bg_chat.png',
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+            onPressed: () => chat.closeThread(),
           ),
-
-          // Input bar
-          Container(
-            padding: EdgeInsets.fromLTRB(
-                16, 8, 8, MediaQuery.of(context).padding.bottom + 8),
-            decoration: const BoxDecoration(
-              color: MadiColors.surfaceDark,
-              border: Border(
-                top: BorderSide(color: MadiColors.border, width: 0.5),
-              ),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _msgController,
-                    style:
-                        const TextStyle(color: MadiColors.textPrimary),
-                    decoration: InputDecoration(
-                      hintText: 'Type a message...',
-                      hintStyle:
-                          TextStyle(color: MadiColors.textMuted),
-                      filled: true,
-                      fillColor: MadiColors.cardDark,
-                      border: OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(MadiRadius.full),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(otherName, style: GoogleFonts.oswald(color: Colors.white, fontSize: 18)),
+              Text('Mentor / Talent', style: GoogleFonts.coveredByYourGrace(color: MadiColors.bloodRed, fontSize: 12)),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.phone_rounded, color: MadiColors.bloodRed),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CallScreen(
+                      channelId: widget.threadId,
+                      remoteUserName: otherName,
+                      isVideo: false,
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  decoration: const BoxDecoration(
-                    color: MadiColors.gold,
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.send_rounded,
-                        color: Colors.black, size: 20),
-                    onPressed: () {
-                      if (_msgController.text.trim().isEmpty) return;
-                      chat.sendMessage(
-                        senderId: myId,
-                        receiverId: otherId,
-                        content: _msgController.text,
-                      );
-                      _msgController.clear();
-                      // Scroll to bottom.
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (_scrollController.hasClients) {
-                          _scrollController.animateTo(
-                            _scrollController.position.maxScrollExtent,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeOut,
-                          );
-                        }
-                      });
-                    },
-                  ),
-                ),
-              ],
+                );
+              },
             ),
-          ),
-        ],
+            IconButton(
+              icon: const Icon(Icons.videocam_rounded, color: MadiColors.bloodRed),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CallScreen(
+                      channelId: widget.threadId,
+                      remoteUserName: otherName,
+                      isVideo: true,
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(width: 8),
+          ],
+        ),
+        body: Column(
+          children: [
+            // Messages
+            Expanded(
+              child: messages.isEmpty
+                  ? Center(
+                      child: Text('Say hello! 👋',
+                          style: TextStyle(color: MadiColors.textMuted)),
+                    )
+                  : ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(16),
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        final msg = messages[index];
+                        return MessageBubble(
+                          content: msg.content,
+                          time: DateFormat.Hm().format(msg.timestamp),
+                          isMine: msg.senderId == myId,
+                          isRead: msg.isRead,
+                        );
+                      },
+                    ),
+            ),
+  
+            // Input bar
+            Container(
+              padding: EdgeInsets.fromLTRB(
+                  16, 8, 8, MediaQuery.of(context).padding.bottom + 8),
+              decoration: const BoxDecoration(
+                color: MadiColors.surfaceDark,
+                border: Border(
+                  top: BorderSide(color: MadiColors.border, width: 0.5),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _msgController,
+                      style:
+                          const TextStyle(color: MadiColors.textPrimary),
+                      decoration: InputDecoration(
+                        hintText: 'Type a message...',
+                        hintStyle:
+                            TextStyle(color: MadiColors.textMuted),
+                        filled: true,
+                        fillColor: MadiColors.cardDark,
+                        border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(MadiRadius.full),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: MadiColors.gold,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.send_rounded,
+                          color: Colors.black, size: 20),
+                      onPressed: () {
+                        if (_msgController.text.trim().isEmpty) return;
+                        chat.sendMessage(
+                          senderId: myId,
+                          receiverId: otherId,
+                          content: _msgController.text,
+                        );
+                        _msgController.clear();
+                        // Scroll to bottom.
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (_scrollController.hasClients) {
+                            _scrollController.animateTo(
+                              _scrollController.position.maxScrollExtent,
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeOut,
+                            );
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

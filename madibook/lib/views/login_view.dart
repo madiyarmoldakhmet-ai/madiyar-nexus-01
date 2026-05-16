@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/constants.dart';
 import '../core/auth_service.dart';
+import '../widgets/anime_background.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Premium login/register screen with gold accents.
 class LoginView extends StatefulWidget {
@@ -28,162 +30,171 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Consumer<AuthService>(
-        builder: (context, auth, _) {
-          return Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Logo
-                  ShaderMask(
-                    shaderCallback: (bounds) => const LinearGradient(
-                      colors: [MadiColors.goldShimmer, MadiColors.gold],
-                    ).createShader(bounds),
-                    child: const Text(
-                      'Nexus',
-                      style: TextStyle(
-                        fontSize: 42,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        letterSpacing: -1,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'The Human Library',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(color: MadiColors.textMuted),
-                  ),
-                  const SizedBox(height: 48),
-
-                  // Name field (register only)
-                  if (_isRegister) ...[
-                    _buildField(
-                      controller: _nameController,
-                      hint: 'Full Name',
-                      icon: Icons.person_outline_rounded,
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-
-                  // Email
-                  _buildField(
-                    controller: _emailController,
-                    hint: 'Email',
-                    icon: Icons.email_outlined,
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Password
-                  _buildField(
-                    controller: _passwordController,
-                    hint: 'Password',
-                    icon: Icons.lock_outline_rounded,
-                    obscure: _obscurePassword,
-                    suffix: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: MadiColors.textMuted,
-                        size: 20,
-                      ),
-                      onPressed: () =>
-                          setState(() => _obscurePassword = !_obscurePassword),
-                    ),
-                  ),
-
-                  // Error message
-                  if (auth.errorMessage != null) ...[
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: MadiColors.rose.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(MadiRadius.md),
-                        border: Border.all(
-                            color: MadiColors.rose.withValues(alpha: 0.3)),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.error_outline,
-                              color: MadiColors.rose, size: 18),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              auth.errorMessage!,
-                              style: const TextStyle(
-                                  color: MadiColors.rose, fontSize: 13),
-                            ),
+    return AnimeBackground(
+      assetPath: 'assets/images/hq720.jpg',
+      opacity: 0.7,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Consumer<AuthService>(
+          builder: (context, auth, _) {
+            return Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Logo — Anime Style
+                    Text(
+                      'NEXUS',
+                      style: GoogleFonts.coveredByYourGrace(
+                        fontSize: 64,
+                        fontWeight: FontWeight.w900,
+                        color: MadiColors.bloodRed,
+                        letterSpacing: 6,
+                        shadows: [
+                          Shadow(
+                            color: MadiColors.bloodRed.withValues(alpha: 0.5),
+                            blurRadius: 20,
                           ),
                         ],
                       ),
                     ),
-                  ],
+                    const SizedBox(height: 4),
+                    Text(
+                      'Talent Without Fear',
+                      style: GoogleFonts.oswald(
+                        color: MadiColors.textMuted,
+                        fontSize: 14,
+                        letterSpacing: 3,
+                      ),
+                    ),
+                    const SizedBox(height: 48),
 
-                  const SizedBox(height: 24),
+                    // Name field (register only)
+                    if (_isRegister) ...[
+                      _buildField(
+                        controller: _nameController,
+                        hint: 'Full Name',
+                        icon: Icons.person_outline_rounded,
+                      ),
+                      const SizedBox(height: 16),
+                    ],
 
-                  // Submit button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: auth.state == AuthState.loading
-                          ? null
-                          : _handleSubmit,
-                      child: auth.state == AuthState.loading
-                          ? const SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.black),
-                            )
-                          : Text(
-                              _isRegister ? 'Create Account' : 'Sign In',
-                              style: const TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.w700),
+                    // Email
+                    _buildField(
+                      controller: _emailController,
+                      hint: 'Email',
+                      icon: Icons.email_outlined,
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Password
+                    _buildField(
+                      controller: _passwordController,
+                      hint: 'Password',
+                      icon: Icons.lock_outline_rounded,
+                      obscure: _obscurePassword,
+                      suffix: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: MadiColors.textMuted,
+                          size: 20,
+                        ),
+                        onPressed: () => setState(
+                            () => _obscurePassword = !_obscurePassword),
+                      ),
+                    ),
+
+                    // Error message
+                    if (auth.errorMessage != null) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: MadiColors.rose.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(MadiRadius.md),
+                          border: Border.all(
+                              color: MadiColors.rose.withValues(alpha: 0.3)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.error_outline,
+                                color: MadiColors.rose, size: 18),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                auth.errorMessage!,
+                                style: const TextStyle(
+                                    color: MadiColors.rose, fontSize: 13),
+                              ),
                             ),
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    const SizedBox(height: 24),
+
+                    // Submit button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton(
+                        onPressed: auth.state == AuthState.loading
+                            ? null
+                            : _handleSubmit,
+                        child: auth.state == AuthState.loading
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2, color: Colors.black),
+                              )
+                            : Text(
+                                _isRegister ? 'Create Account' : 'Sign In',
+                                style: const TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w700),
+                              ),
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                  // Toggle login/register
-                  TextButton(
-                    onPressed: () => setState(() => _isRegister = !_isRegister),
-                    child: Text(
-                      _isRegister
-                          ? 'Already have an account? Sign In'
-                          : "Don't have an account? Register",
-                      style: TextStyle(
-                          color: MadiColors.gold, fontWeight: FontWeight.w500),
+                    // Toggle login/register
+                    TextButton(
+                      onPressed: () =>
+                          setState(() => _isRegister = !_isRegister),
+                      child: Text(
+                        _isRegister
+                            ? 'Already have an account? Sign In'
+                            : "Don't have an account? Register",
+                        style: TextStyle(
+                            color: MadiColors.bloodRed,
+                            fontWeight: FontWeight.w500),
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                  // Demo login shortcut
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      _emailController.text = 'madi@nexus.kz';
-                      _passwordController.text = 'madi123';
-                      _handleSubmit();
-                    },
-                    icon: const Icon(Icons.rocket_launch_rounded, size: 16),
-                    label: const Text('Quick Demo Login'),
-                  ),
-                ],
+                    // Demo login shortcut
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        _emailController.text = 'madi@nexus.kz';
+                        _passwordController.text = 'madi123';
+                        _handleSubmit();
+                      },
+                      icon: const Icon(Icons.rocket_launch_rounded, size: 16),
+                      label: const Text('Quick Demo Login'),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -218,7 +229,7 @@ class _LoginViewState extends State<LoginView> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(MadiRadius.md),
-          borderSide: const BorderSide(color: MadiColors.gold, width: 1.5),
+          borderSide: const BorderSide(color: MadiColors.bloodRed, width: 1.5),
         ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 16),

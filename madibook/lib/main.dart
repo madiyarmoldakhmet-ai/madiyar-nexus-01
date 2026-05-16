@@ -19,17 +19,29 @@ import 'views/academy_view.dart';
 import 'screens/chat_screen.dart';
 import 'views/journey_view.dart';
 import 'views/profile_view.dart';
+import 'core/notification_service.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  debugPrint('🚀 App starting...');
   try {
     if (Firebase.apps.isEmpty) {
+      debugPrint('🔥 Initializing Firebase...');
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
-      );
+      ).timeout(const Duration(seconds: 10), onTimeout: () {
+        debugPrint('⚠️ Firebase initialization timed out!');
+        return Firebase.app(); // Return existing app if possible
+      });
+      debugPrint('🔥 Firebase initialized successfully');
     }
+    
+    // Initialize notifications
+    debugPrint('🔔 Initializing Notifications...');
+    await NotificationService().initialize();
   } catch (e) {
-    debugPrint('Firebase initialization warning: $e');
+    debugPrint('❌ Initialization error: $e');
   }
   runApp(const NexusApp());
 }
@@ -57,6 +69,8 @@ class NexusApp extends StatelessWidget {
         title: 'Nexus',
         debugShowCheckedModeBanner: false,
         theme: MadiTheme.dark,
+        darkTheme: MadiTheme.dark,
+        themeMode: ThemeMode.dark,
         home: const AuthGate(),
       ),
     );
@@ -69,15 +83,14 @@ class AuthGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authService = context.read<AuthService>();
     final appState = context.read<AppState>();
     
-    return StreamBuilder<MadiUser?>(
-      stream: authService.authStateChanges,
-      builder: (context, snapshot) {
-        // If the stream hasn't emitted yet, we might be in 'initial' or 'loading' state
-        if (snapshot.connectionState == ConnectionState.waiting && 
-            authService.state == AuthState.initial) {
+    return Consumer<AuthService>(
+      builder: (context, authService, child) {
+        debugPrint('🛡️ AuthGate: Current state: ${authService.state}');
+
+        // 1. Show spinner ONLY in the very initial state
+        if (authService.state == AuthState.initial) {
           return const Scaffold(
             body: Center(
               child: CircularProgressIndicator(color: MadiColors.gold),
@@ -85,19 +98,33 @@ class AuthGate extends StatelessWidget {
           );
         }
 
-        final user = snapshot.data;
-        
-        // Sync user to AppState for backward compatibility with existing views
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (appState.currentUser != user) {
-            appState.setCurrentUser(user);
-          }
-        });
+        // 2. Handle Errors or Unauthenticated (redirect to Login)
+        if (authService.state == AuthState.error || authService.state == AuthState.unauthenticated) {
+          return const LoginView();
+        }
 
+        // 3. Handle Loading (e.g. during sign in process)
+        if (authService.state == AuthState.loading) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(color: MadiColors.bloodRed),
+            ),
+          );
+        }
+
+        // 4. Authenticated state
+        final user = authService.currentUser;
         if (user != null) {
+          // Sync user to AppState
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (appState.currentUser != user) {
+              appState.setCurrentUser(user);
+            }
+          });
           return const NexusShell();
         }
         
+        // Fallback
         return const LoginView();
       },
     );
@@ -121,6 +148,7 @@ class NexusShell extends StatelessWidget {
     return Consumer<AppState>(
       builder: (context, appState, child) {
         return Scaffold(
+          backgroundColor: Colors.transparent,
           body: IndexedStack(
             index: appState.selectedTabIndex,
             children: _pages,
@@ -142,6 +170,12 @@ class NexusShell extends StatelessWidget {
             child: BottomNavigationBar(
               currentIndex: appState.selectedTabIndex,
               onTap: appState.setTabIndex,
+              backgroundColor: MadiColors.ghoulDark,
+              selectedItemColor: MadiColors.bloodRed,
+              unselectedItemColor: MadiColors.textMuted,
+              selectedLabelStyle: GoogleFonts.oswald(fontSize: 10, fontWeight: FontWeight.bold),
+              unselectedLabelStyle: GoogleFonts.oswald(fontSize: 10),
+              type: BottomNavigationBarType.fixed,
               items: const [
                 BottomNavigationBarItem(
                   icon: Icon(Icons.explore_outlined),

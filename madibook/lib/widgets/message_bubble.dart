@@ -14,7 +14,12 @@ class MessageBubble extends StatelessWidget {
     required this.time,
     required this.isMine,
     this.isRead = false,
+    this.senderName,
+    this.senderRole,
   });
+
+  final String? senderName;
+  final String? senderRole;
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +56,38 @@ class MessageBubble extends StatelessWidget {
           crossAxisAlignment:
               isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
+            if (!isMine && senderName != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      senderName!,
+                      style: const TextStyle(
+                        color: MadiColors.gold,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (senderRole != null) ...[
+                      const SizedBox(width: 6),
+                      Text(
+                        senderRole!.toUpperCase(),
+                        style: TextStyle(
+                          color: senderRole == 'expert'
+                              ? Colors.purpleAccent
+                              : senderRole == 'mentor'
+                                  ? MadiColors.emerald
+                                  : MadiColors.textMuted,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
             Text(
               content,
               style: const TextStyle(

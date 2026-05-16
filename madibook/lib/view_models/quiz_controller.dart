@@ -38,7 +38,7 @@ class QuizController extends ChangeNotifier {
       ? (_currentIndex + 1) / _activeTrack!.totalQuestions
       : 0.0;
 
-  int get madiCreditsEarned => _totalXp ~/ 10;
+  int get nexusCreditsEarned => _totalXp ~/ 10;
   int get sessionCreditsEarned => _sessionXp ~/ 10;
 
   Map<String, QuizProgress> get progressMap =>
@@ -103,7 +103,7 @@ class QuizController extends ChangeNotifier {
 
       debugPrint(
         '🎉 Quiz complete! Score: $_correctAnswers/${_activeTrack!.totalQuestions}, '
-        'XP: $_sessionXp, MC earned: $sessionCreditsEarned',
+        'XP: $_sessionXp, NC earned: $sessionCreditsEarned',
       );
     } else {
       _currentIndex++;

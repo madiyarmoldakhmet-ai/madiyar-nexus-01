@@ -1,1 +1,58 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"madibook-e96e0","appId":"1:52810814573:android:609701709e4ee27c6b9b64","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"madibook-e96e0","appId":"1:52810814573:ios:aa095083e0d5e6f56b9b64","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"madibook-e96e0","configurations":{"android":"1:52810814573:android:609701709e4ee27c6b9b64","ios":"1:52810814573:ios:aa095083e0d5e6f56b9b64","macos":"1:52810814573:ios:aa095083e0d5e6f56b9b64","web":"1:52810814573:web:7decf4a424e34f096b9b64","windows":"1:52810814573:web:b1c4d627a9fc32806b9b64"}}},"macos":{"default":{"projectId":"madibook-e96e0","appId":"1:52810814573:ios:aa095083e0d5e6f56b9b64","uploadDebugSymbols":false,"fileOutput":"macos/Runner/GoogleService-Info.plist"}}}}}
+{
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "madibook-e96e0",
+          "appId": "1:52810814573:android:609701709e4ee27c6b9b64",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "madibook-e96e0",
+          "appId": "1:52810814573:ios:aa095083e0d5e6f56b9b64",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "madibook-e96e0",
+          "configurations": {
+            "android": "1:52810814573:android:609701709e4ee27c6b9b64",
+            "ios": "1:52810814573:ios:aa095083e0d5e6f56b9b64",
+            "macos": "1:52810814573:ios:aa095083e0d5e6f56b9b64",
+            "web": "1:52810814573:web:7decf4a424e34f096b9b64",
+            "windows": "1:52810814573:web:b1c4d627a9fc32806b9b64"
+          }
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "madibook-e96e0",
+          "appId": "1:52810814573:ios:aa095083e0d5e6f56b9b64",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      }
+    }
+  }
+}

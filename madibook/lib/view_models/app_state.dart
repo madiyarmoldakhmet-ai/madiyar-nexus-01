@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../models/user_model.dart';
-import '../models/skill_model.dart';
+
 import '../models/swap_request_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -9,18 +9,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 ///
 /// In production, replace the in-memory lists with API calls.
 class AppState extends ChangeNotifier {
-  MadiUser? _currentUser;
-  List<MadiUser> _communityUsers = [];
+  NexusUser? _currentUser;
+  List<NexusUser> _communityUsers = [];
   final List<SwapRequest> _swapRequests = [];
   int _selectedTabIndex = 0;
 
-  MadiUser? get currentUser => _currentUser;
-  List<MadiUser> get communityUsers => List.unmodifiable(_communityUsers);
+  NexusUser? get currentUser => _currentUser;
+  List<NexusUser> get communityUsers => List.unmodifiable(_communityUsers);
   List<SwapRequest> get swapRequests => List.unmodifiable(_swapRequests);
   int get selectedTabIndex => _selectedTabIndex;
 
   /// Update the current user from the Auth service.
-  void setCurrentUser(MadiUser? user) {
+  void setCurrentUser(NexusUser? user) {
     _currentUser = user;
     if (_currentUser != null) {
       _startListeningToCommunity();
@@ -31,7 +31,7 @@ class AppState extends ChangeNotifier {
   void _startListeningToCommunity() {
     FirebaseFirestore.instance.collection('users').snapshots().listen((snapshot) {
       _communityUsers = snapshot.docs
-          .map((doc) => MadiUser.fromJson(doc.data(), doc.id))
+          .map((doc) => NexusUser.fromJson(doc.data(), doc.id))
           .where((u) => u.id != _currentUser?.id)
           .toList();
       notifyListeners();
