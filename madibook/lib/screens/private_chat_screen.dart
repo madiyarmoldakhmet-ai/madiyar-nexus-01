@@ -62,6 +62,7 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
         .add({
       'text': text,
       'senderId': myId,
+      'isRead': false,
       'timestamp': FieldValue.serverTimestamp(),
     });
   }
@@ -100,6 +101,16 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
                 }
 
                 final docs = snapshot.data?.docs ?? [];
+
+                // Mark unread messages as read
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  for (var doc in docs) {
+                    final data = doc.data() as Map<String, dynamic>;
+                    if (data['senderId'] != myId && (data['isRead'] == false || data['isRead'] == null)) {
+                      doc.reference.update({'isRead': true});
+                    }
+                  }
+                });
 
                 if (docs.isEmpty) {
                   return Center(

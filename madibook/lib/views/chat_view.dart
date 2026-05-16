@@ -121,34 +121,49 @@ class _ThreadListScreen extends StatelessWidget {
                           )
                         : Text('Start chatting',
                             style: TextStyle(color: MadiColors.textMuted)),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        if (lastMsg != null)
-                          Text(
-                            DateFormat.Hm().format(lastMsg.timestamp),
-                            style: TextStyle(
-                                color: MadiColors.textMuted, fontSize: 11),
-                          ),
-                        if (thread.unreadCount > 0) ...[
-                          const SizedBox(height: 4),
-                          Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: const BoxDecoration(
-                              color: MadiColors.gold,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Text(
-                              '${thread.unreadCount}',
-                              style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                          ),
-                        ],
-                      ],
+                    trailing: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('chats')
+                          .doc(thread.id)
+                          .collection('messages')
+                          .where('isRead', isEqualTo: false)
+                          .where('senderId', isNotEqualTo: myId)
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        int unread = 0;
+                        if (snapshot.hasData) {
+                          unread = snapshot.data!.docs.length;
+                        }
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            if (lastMsg != null)
+                              Text(
+                                DateFormat.Hm().format(lastMsg.timestamp),
+                                style: TextStyle(
+                                    color: MadiColors.textMuted, fontSize: 11),
+                              ),
+                            if (unread > 0) ...[
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.all(5),
+                                decoration: const BoxDecoration(
+                                  color: MadiColors.gold,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Text(
+                                  '$unread',
+                                  style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                            ],
+                          ],
+                        );
+                      },
                     ),
                     onTap: () => chat.openThread(thread.id, myId),
                   );

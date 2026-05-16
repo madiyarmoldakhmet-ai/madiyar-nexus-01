@@ -47,6 +47,7 @@ class _ChatScreenState extends State<ChatScreen> {
       'senderId': senderId,
       'senderName': senderName,
       'senderRole': senderRole,
+      'isRead': false,
       'timestamp': FieldValue.serverTimestamp(),
     });
   }
