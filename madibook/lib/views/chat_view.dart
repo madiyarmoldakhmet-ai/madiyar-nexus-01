@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:intl/intl.dart';
 import '../core/constants.dart';
 import '../core/auth_service.dart';
@@ -249,6 +250,44 @@ class _ConversationScreen extends StatefulWidget {
 class _ConversationScreenState extends State<_ConversationScreen> {
   final _msgController = TextEditingController();
   final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _setupMessageListener();
+  }
+
+  void _setupMessageListener() {
+    final auth = context.read<AuthService>();
+    final myId = auth.currentUser?.id ?? '';
+
+    FirebaseFirestore.instance
+        .collectionGroup('messages')
+        .where('isRead', isEqualTo: false)
+        .snapshots()
+        .listen((snapshot) {
+      for (var change in snapshot.docChanges) {
+        if (change.type == DocumentChangeType.added) {
+          final data = change.doc.data() as Map<String, dynamic>;
+          final senderId = data['senderId'];
+
+          // Only show notification if message is from someone else
+          if (senderId != myId) {
+            showSimpleNotification(
+              Text("New Message", style: GoogleFonts.oswald(color: Colors.white)),
+              subtitle: Text(
+                data['content'] ?? "Sent a file/image",
+                style: GoogleFonts.oswald(color: Colors.white70, fontSize: 12),
+              ),
+              background: MadiColors.bloodRed,
+              duration: const Duration(seconds: 3),
+              leading: const Icon(Icons.chat_bubble_rounded, color: Colors.white),
+            );
+          }
+        }
+      }
+    });
+  }
 
   @override
   void dispose() {
