@@ -19,6 +19,20 @@
   <title>Nexus</title>
   <link rel="manifest" href="manifest.json">
 
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/madibook01/firebase-messaging-sw.js', {
+          scope: '/madibook01/'
+        }).then(function(reg) {
+          console.log('Firebase SW успешно зарегистрирован вручную под корень /madibook01/', reg);
+        }).catch(function(err) {
+          console.error('Ошибка ручной регистрации SW:', err);
+        });
+      });
+    }
+  </script>
+
   <style>
     body {
       background: transparent !important;
