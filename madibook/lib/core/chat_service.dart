@@ -1,101 +1,147 @@
 import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/message_model.dart';
 
-/// Mock chat service for peer-to-peer messaging.
-///
-/// Swap with Firestore real-time listeners for production:
-///   class FirestoreChatService implements ChatService { ... }
+/// Real-time Firestore chat service for peer-to-peer messaging.
 class ChatService extends ChangeNotifier {
-  final List<ChatThread> _threads = [];
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  
+  List<ChatThread> _threads = [];
   final Map<String, List<ChatMessage>> _messages = {};
+  final Map<String, Stream<QuerySnapshot>> _messageStreams = {};
 
   List<ChatThread> get threads => List.unmodifiable(_threads);
 
-  /// Get all messages for a given thread.
+  /// Helper to generate a consistent thread ID between two users.
+  String getThreadId(String uid1, String uid2) {
+    List<String> ids = [uid1, uid2];
+    ids.sort();
+    return ids.join('_');
+  }
+
+  String? _currentUserId;
+
+  /// Start listening to threads for the current user.
+  void initialize(String userId) {
+    if (userId.isEmpty || _currentUserId == userId) return;
+    _currentUserId = userId;
+
+    // Listen to threads where the user is participantA or participantB
+    _firestore.collection('chats')
+      .where(Filter.or(
+        Filter('participantAId', isEqualTo: userId),
+        Filter('participantBId', isEqualTo: userId)
+      ))
+      .snapshots()
+      .listen((snapshot) {
+        _threads = snapshot.docs
+            .map((doc) => ChatThread.fromFirestore(doc.data(), doc.id))
+            .toList();
+        
+        // Sort by last message time if possible, or just keep order
+        notifyListeners();
+      });
+  }
+
+  /// Get all messages for a given thread (cached).
   List<ChatMessage> getMessages(String threadId) {
+    if (!_messageStreams.containsKey(threadId)) {
+      _setupMessageListener(threadId);
+    }
     return List.unmodifiable(_messages[threadId] ?? []);
   }
 
-  /// Get or create a thread between two users.
+  void _setupMessageListener(String threadId) {
+    final stream = _firestore.collection('chats')
+        .doc(threadId)
+        .collection('messages')
+        .orderBy('timestamp', descending: false)
+        .snapshots();
+    
+    _messageStreams[threadId] = stream;
+    stream.listen((snapshot) {
+      _messages[threadId] = snapshot.docs
+          .map((doc) => ChatMessage.fromFirestore(doc.data(), doc.id))
+          .toList();
+      notifyListeners();
+    });
+  }
+
+  /// Get or create a thread metadata in Firestore.
   ChatThread getOrCreateThread({
     required String myId,
     required String myName,
     required String otherId,
     required String otherName,
   }) {
-    // Check if thread already exists.
-    final existing = _threads.where((t) =>
-        (t.participantAId == myId && t.participantBId == otherId) ||
-        (t.participantAId == otherId && t.participantBId == myId));
+    final threadId = getThreadId(myId, otherId);
+    final existing = _threads.where((t) => t.id == threadId);
 
     if (existing.isNotEmpty) return existing.first;
 
-    // Create new thread.
     final thread = ChatThread(
+      id: threadId,
       participantAId: myId,
       participantBId: otherId,
       participantAName: myName,
       participantBName: otherName,
     );
-    _threads.insert(0, thread);
-    _messages[thread.id] = [];
-    notifyListeners();
+
+    _firestore.collection('chats').doc(threadId).set(thread.toFirestore(), SetOptions(merge: true));
+    
     return thread;
   }
 
-  /// Send a message in a thread.
-  ChatMessage sendMessage({
+  /// Send a message to Firestore.
+  Future<void> sendMessage({
     required String threadId,
     required String senderId,
     required String receiverId,
     required String content,
-  }) {
-    final message = ChatMessage(
-      senderId: senderId,
-      receiverId: receiverId,
-      content: content,
-    );
+  }) async {
+    final docRef = _firestore.collection('chats')
+        .doc(threadId)
+        .collection('messages')
+        .doc();
 
-    _messages.putIfAbsent(threadId, () => []);
-    _messages[threadId]!.add(message);
+    final payload = {
+      'text': content,
+      'senderId': senderId,
+      'receiverId': receiverId,
+      'timestamp': FieldValue.serverTimestamp(),
+      'isRead': false,
+    };
 
-    // Update the thread's last message and move it to top.
-    final threadIndex = _threads.indexWhere((t) => t.id == threadId);
-    if (threadIndex != -1) {
-      final thread = _threads[threadIndex];
-      thread.lastMessage = message;
-      thread.unreadCount++;
-      // Move to top of list (most recent).
-      _threads.removeAt(threadIndex);
-      _threads.insert(0, thread);
-    }
+    debugPrint('===> [DEBUG] 📤 Sending message to Firestore: $payload');
+    
+    await docRef.set(payload);
 
-    notifyListeners();
-    debugPrint('💬 Message sent in thread $threadId');
-    return message;
+    // Also update thread metadata to show it exists and maybe update unreadCount
+    // For simplicity, we just ensure the thread doc exists
+    _firestore.collection('chats').doc(threadId).set({
+      'lastMessageText': content,
+      'lastTimestamp': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
   }
 
-  /// Mark all messages in a thread as read.
-  void markThreadAsRead(String threadId, String readerId) {
-    final messages = _messages[threadId];
-    if (messages == null) return;
+  /// Mark messages as read in Firestore.
+  void markThreadAsRead(String threadId, String readerId) async {
+    final unreadQuery = await _firestore.collection('chats')
+        .doc(threadId)
+        .collection('messages')
+        .where('receiverId', isEqualTo: readerId)
+        .where('isRead', isEqualTo: false)
+        .get();
 
-    for (final msg in messages) {
-      if (msg.receiverId == readerId) {
-        msg.isRead = true;
-      }
+    final batch = _firestore.batch();
+    for (var doc in unreadQuery.docs) {
+      batch.update(doc.reference, {'isRead': true});
     }
-
-    final threadIndex = _threads.indexWhere((t) => t.id == threadId);
-    if (threadIndex != -1) {
-      _threads[threadIndex].unreadCount = 0;
-    }
-
-    notifyListeners();
+    await batch.commit();
   }
 
-  /// Total unread count across all threads for a user.
   int totalUnread(String userId) {
+    // This could be a complex query, but for now we sum local thread counts
     return _threads.fold(0, (sum, t) => sum + t.unreadCount);
   }
 }

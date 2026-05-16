@@ -1,4 +1,5 @@
 import 'package:uuid/uuid.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// A single chat message between two users.
 class ChatMessage {
@@ -19,24 +20,33 @@ class ChatMessage {
   })  : id = id ?? const Uuid().v4(),
         timestamp = timestamp ?? DateTime.now();
 
-  factory ChatMessage.fromJson(Map<String, dynamic> json) {
+  factory ChatMessage.fromFirestore(Map<String, dynamic> json, String docId) {
+    DateTime parsedTime;
+    final ts = json['timestamp'];
+    if (ts is Timestamp) {
+      parsedTime = ts.toDate();
+    } else if (ts is String) {
+      parsedTime = DateTime.tryParse(ts) ?? DateTime.now();
+    } else {
+      parsedTime = DateTime.now();
+    }
+
     return ChatMessage(
-      id: json['id'] as String,
-      senderId: json['sender_id'] as String,
-      receiverId: json['receiver_id'] as String,
-      content: json['content'] as String,
-      timestamp: DateTime.parse(json['timestamp'] as String),
-      isRead: json['is_read'] as bool? ?? false,
+      id: docId,
+      senderId: json['senderId'] as String? ?? '',
+      receiverId: json['receiverId'] as String? ?? '',
+      content: json['text'] as String? ?? '',
+      timestamp: parsedTime,
+      isRead: json['isRead'] as bool? ?? false,
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'sender_id': senderId,
-        'receiver_id': receiverId,
-        'content': content,
-        'timestamp': timestamp.toIso8601String(),
-        'is_read': isRead,
+  Map<String, dynamic> toFirestore() => {
+        'senderId': senderId,
+        'receiverId': receiverId,
+        'text': content,
+        'timestamp': FieldValue.serverTimestamp(),
+        'isRead': isRead,
       };
 
   @override
@@ -86,28 +96,23 @@ class ChatThread {
     return name.isNotEmpty ? name[0].toUpperCase() : '?';
   }
 
-  factory ChatThread.fromJson(Map<String, dynamic> json) {
+  factory ChatThread.fromFirestore(Map<String, dynamic> json, String docId) {
     return ChatThread(
-      id: json['id'] as String,
-      participantAId: json['participant_a_id'] as String,
-      participantBId: json['participant_b_id'] as String,
-      participantAName: json['participant_a_name'] as String,
-      participantBName: json['participant_b_name'] as String,
-      lastMessage: json['last_message'] != null
-          ? ChatMessage.fromJson(json['last_message'] as Map<String, dynamic>)
-          : null,
-      unreadCount: json['unread_count'] as int? ?? 0,
+      id: docId,
+      participantAId: json['participantAId'] as String? ?? '',
+      participantBId: json['participantBId'] as String? ?? '',
+      participantAName: json['participantAName'] as String? ?? '',
+      participantBName: json['participantBName'] as String? ?? '',
+      unreadCount: json['unreadCount'] as int? ?? 0,
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'participant_a_id': participantAId,
-        'participant_b_id': participantBId,
-        'participant_a_name': participantAName,
-        'participant_b_name': participantBName,
-        'last_message': lastMessage?.toJson(),
-        'unread_count': unreadCount,
+  Map<String, dynamic> toFirestore() => {
+        'participantAId': participantAId,
+        'participantBId': participantBId,
+        'participantAName': participantAName,
+        'participantBName': participantBName,
+        'unreadCount': unreadCount,
       };
 
   @override

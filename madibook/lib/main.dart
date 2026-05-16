@@ -144,6 +144,7 @@ class AuthGate extends StatelessWidget {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (appState.currentUser != user) {
               appState.setCurrentUser(user);
+              context.read<ChatService>().initialize(user.id);
             }
           });
           return const NexusShell();
