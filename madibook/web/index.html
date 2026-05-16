@@ -20,16 +20,33 @@
   <link rel="manifest" href="manifest.json">
 
   <script>
+    // FIX: Intercept fetch for Service Worker to force correct path
+    const originalFetch = window.fetch;
+    window.fetch = function(input, init) {
+      if (typeof input === 'string' && input.includes('firebase-messaging-sw.js') && !input.includes('madibook01')) {
+        console.log('Intercepted fetch:', input);
+        input = '/madibook01/firebase-messaging-sw.js';
+      }
+      return originalFetch.call(this, input, init);
+    };
+
+    // FIX: Intercept Service Worker registration to force correct GitHub Pages subfolder path
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/madibook01/firebase-messaging-sw.js', {
-          scope: '/madibook01/'
-        }).then(function(reg) {
-          console.log('Firebase SW успешно зарегистрирован вручную под корень /madibook01/', reg);
-        }).catch(function(err) {
-          console.error('Ошибка ручной регистрации SW:', err);
-        });
-      });
+      const originalRegister = navigator.serviceWorker.register;
+      navigator.serviceWorker.register = function(url, options) {
+        if (typeof url === 'string' && url.includes('firebase-messaging-sw.js')) {
+          console.log('Intercepted Firebase SW registration:', url);
+          // Force the correct path for GitHub Pages
+          url = '/madibook01/firebase-messaging-sw.js';
+          if (options) {
+             options.scope = '/madibook01/';
+          } else {
+             options = { scope: '/madibook01/' };
+          }
+          console.log('Redirected to:', url);
+        }
+        return originalRegister.call(this, url, options);
+      };
     }
   </script>
 
