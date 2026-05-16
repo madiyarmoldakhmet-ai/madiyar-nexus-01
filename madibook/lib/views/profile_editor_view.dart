@@ -20,6 +20,7 @@ class _ProfileEditorViewState extends State<ProfileEditorView> {
   final _bioController = TextEditingController();
   final _specialtyController = TextEditingController();
   UserRole _selectedRole = UserRole.talent;
+  String _selectedStatus = 'single';
   bool _isLoading = false;
 
   @override
@@ -32,6 +33,7 @@ class _ProfileEditorViewState extends State<ProfileEditorView> {
       _bioController.text = user.bio;
       _specialtyController.text = user.specialty;
       _selectedRole = user.role;
+      _selectedStatus = user.relationshipStatus;
     }
   }
 
@@ -58,6 +60,7 @@ class _ProfileEditorViewState extends State<ProfileEditorView> {
         'bio': _bioController.text.trim(),
         'specialty': _specialtyController.text.trim(),
         'role': _selectedRole.name,
+        'relationship_status': _selectedStatus,
       };
 
       await FirebaseFirestore.instance
@@ -141,6 +144,8 @@ class _ProfileEditorViewState extends State<ProfileEditorView> {
               ),
               const SizedBox(height: 24),
               _buildRoleSelector(),
+              const SizedBox(height: 24),
+              _buildStatusSelector(),
             ],
           ),
         ),
@@ -178,6 +183,76 @@ class _ProfileEditorViewState extends State<ProfileEditorView> {
                   ),
                   side: BorderSide(
                     color: isSelected ? MadiColors.bloodRed : MadiColors.border,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatusSelector() {
+    final statuses = [
+      ('single', 'Single / Searching', MadiColors.gold),
+      ('in_relationship', 'In Relationship', MadiColors.bloodRed),
+      ('complicated', 'It\'s Complicated', MadiColors.indigo),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Relationship Status:',
+          style: GoogleFonts.coveredByYourGrace(color: MadiColors.textMuted, fontSize: 18),
+        ),
+        const SizedBox(height: 12),
+        Column(
+          children: statuses.map((s) {
+            final isSelected = _selectedStatus == s.$1;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: InkWell(
+                onTap: () => setState(() => _selectedStatus = s.$1),
+                borderRadius: BorderRadius.circular(12),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: isSelected ? s.$3.withValues(alpha: 0.15) : MadiColors.cardDark,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isSelected ? s.$3 : MadiColors.border,
+                      width: isSelected ? 2 : 1,
+                    ),
+                    boxShadow: isSelected ? [
+                      BoxShadow(
+                        color: s.$3.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        spreadRadius: 1,
+                      )
+                    ] : [],
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        isSelected ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
+                        color: isSelected ? s.$3 : MadiColors.textMuted,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        s.$2,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : MadiColors.textMuted,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                      const Spacer(),
+                      if (isSelected)
+                        Icon(Icons.check_circle_rounded, color: s.$3, size: 18),
+                    ],
                   ),
                 ),
               ),

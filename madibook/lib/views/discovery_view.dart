@@ -17,6 +17,7 @@ class DiscoveryView extends StatefulWidget {
 }
 
 class _DiscoveryViewState extends State<DiscoveryView> {
+  String? _filterStatus;
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -32,6 +33,7 @@ class _DiscoveryViewState extends State<DiscoveryView> {
       matchEngine.findMatches(
         currentUser: user,
         allUsers: appState.communityUsers,
+        filterStatus: _filterStatus,
       );
     }
   }
@@ -265,6 +267,22 @@ class _DiscoveryViewState extends State<DiscoveryView> {
                 ),
               ),
             ),
+            SwitchListTile(
+              title: const Text('Show Only "Single / Searching"', 
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
+              subtitle: const Text('Find mentors looking for new connections',
+                  style: TextStyle(color: MadiColors.textMuted, fontSize: 12)),
+              value: _filterStatus == 'single',
+              activeColor: MadiColors.gold,
+              onChanged: (val) {
+                setState(() {
+                  _filterStatus = val ? 'single' : null;
+                });
+                _runMatching();
+                Navigator.pop(ctx);
+              },
+            ),
+            const Divider(color: MadiColors.border, height: 32),
             Text(
               'Filter by Category',
               style: GoogleFonts.outfit(

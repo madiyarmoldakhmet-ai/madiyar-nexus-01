@@ -50,6 +50,7 @@ class MatchEngine extends ChangeNotifier {
   List<MatchResult> findMatches({
     required NexusUser currentUser,
     required List<NexusUser> allUsers,
+    String? filterStatus,
   }) {
     _isSearching = true;
     notifyListeners();
@@ -59,6 +60,11 @@ class MatchEngine extends ChangeNotifier {
     for (final candidate in allUsers) {
       // Skip self
       if (candidate.id == currentUser.id) continue;
+
+      // Filter by relationship status if requested
+      if (filterStatus != null && candidate.relationshipStatus != filterStatus) {
+        continue;
+      }
 
       // --- Forward match: candidate OFFERS what I SEEK ---
       final forwardMatches = <Skill>[];

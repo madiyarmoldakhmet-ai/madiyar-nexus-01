@@ -22,6 +22,7 @@ class NexusUser {
   final List<Skill> seekings;
   final bool isVerified;
   final DateTime joinedAt;
+  final String relationshipStatus; // e.g., 'single', 'in_relationship', 'complicated'
 
   NexusUser({
     String? id,
@@ -39,6 +40,7 @@ class NexusUser {
     List<Skill>? offerings,
     List<Skill>? seekings,
     DateTime? joinedAt,
+    this.relationshipStatus = 'single',
   })  : id = id ?? const Uuid().v4(),
         offerings = offerings ?? [],
         seekings = seekings ?? [],
@@ -84,6 +86,7 @@ class NexusUser {
               .toList() ??
           [],
       isVerified: json['is_verified'] as bool? ?? false,
+      relationshipStatus: json['relationship_status'] as String? ?? 'single',
       joinedAt: _parseDateTime(json['joined_at'] ?? json['createdAt']),
     );
   }
@@ -112,6 +115,7 @@ class NexusUser {
       'offerings': offerings.map((s) => s.toJson()).toList(),
       'seekings': seekings.map((s) => s.toJson()).toList(),
       'is_verified': isVerified,
+      'relationship_status': relationshipStatus,
       'joined_at': joinedAt.toIso8601String(),
     };
   }
@@ -131,6 +135,7 @@ class NexusUser {
     List<Skill>? offerings,
     List<Skill>? seekings,
     bool? isVerified,
+    String? relationshipStatus,
   }) {
     return NexusUser(
       id: id,
@@ -147,6 +152,7 @@ class NexusUser {
       offerings: offerings ?? this.offerings,
       seekings: seekings ?? this.seekings,
       isVerified: isVerified ?? this.isVerified,
+      relationshipStatus: relationshipStatus ?? this.relationshipStatus,
       joinedAt: joinedAt,
     );
   }

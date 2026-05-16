@@ -94,22 +94,65 @@ class _ThreadListScreen extends StatelessWidget {
                   return ListTile(
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 6),
-                    leading: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: [MadiColors.indigo, MadiColors.indigoLight],
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(initials,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16)),
-                      ),
+                    leading: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collectionGroup('messages')
+                          .where('senderId', isEqualTo: thread.otherId(myId))
+                          .where('isRead', isEqualTo: false)
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        final unreadCount = snapshot.hasData ? snapshot.data!.docs.length : 0;
+                        return Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(
+                                  colors: [MadiColors.indigo, MadiColors.indigoLight],
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(initials,
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 16)),
+                              ),
+                            ),
+                            if (unreadCount > 0)
+                              Positioned(
+                                top: -2,
+                                right: -2,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: MadiColors.bloodRed,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.black, width: 2),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: MadiColors.bloodRed.withValues(alpha: 0.7),
+                                        blurRadius: 6,
+                                        spreadRadius: 1,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Text(
+                                    '$unreadCount',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 8,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
                     ),
                     title: Text(otherName,
                         style: Theme.of(context).textTheme.titleMedium),
@@ -122,58 +165,17 @@ class _ThreadListScreen extends StatelessWidget {
                           )
                         : Text('Start chatting',
                             style: TextStyle(color: MadiColors.textMuted)),
-                    trailing: StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collectionGroup('messages')
-                          .where('senderId', isEqualTo: thread.otherId(myId))
-                          .where('isRead', isEqualTo: false)
-                          .snapshots(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                          final count = snapshot.data!.docs.length;
-                          return Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              if (lastMsg != null)
-                                Text(
-                                  DateFormat.Hm().format(lastMsg.timestamp),
-                                  style: TextStyle(
-                                      color: MadiColors.textMuted, fontSize: 11),
-                                ),
-                              const SizedBox(height: 4),
-                              Container(
-                                padding: const EdgeInsets.all(5),
-                                decoration: const BoxDecoration(
-                                  color: MadiColors.gold,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Text(
-                                  '$count',
-                                  style: const TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w700),
-                                ),
-                              ),
-                            ],
-                          );
-                        }
-                        
-                        // Fallback if no unread messages
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            if (lastMsg != null)
-                              Text(
-                                DateFormat.Hm().format(lastMsg.timestamp),
-                                style: TextStyle(
-                                    color: MadiColors.textMuted, fontSize: 11),
-                              ),
-                          ],
-                        );
-                      },
+                    trailing: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        if (lastMsg != null)
+                          Text(
+                            DateFormat.Hm().format(lastMsg.timestamp),
+                            style: TextStyle(
+                                color: MadiColors.textMuted, fontSize: 11),
+                          ),
+                      ],
                     ),
                     onTap: () => chat.openThread(thread.id, myId),
                   );

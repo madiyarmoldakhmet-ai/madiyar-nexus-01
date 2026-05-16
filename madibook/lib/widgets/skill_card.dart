@@ -221,34 +221,77 @@ class _SkillCardState extends State<SkillCard>
   }
 
   Widget _buildAvatar(NexusUser user) {
-    return Container(
-      width: 52,
-      height: 52,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [MadiColors.indigo, MadiColors.indigoLight],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: MadiColors.indigo.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+    Color statusColor;
+    IconData statusIcon;
+    
+    switch (user.relationshipStatus) {
+      case 'in_relationship':
+        statusColor = MadiColors.bloodRed;
+        statusIcon = Icons.favorite_rounded;
+        break;
+      case 'complicated':
+        statusColor = MadiColors.indigo;
+        statusIcon = Icons.heart_broken_rounded;
+        break;
+      case 'single':
+      default:
+        statusColor = MadiColors.gold;
+        statusIcon = Icons.favorite_outline_rounded;
+        break;
+    }
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: 52,
+          height: 52,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [MadiColors.indigo, MadiColors.indigoLight],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: MadiColors.indigo.withValues(alpha: 0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Center(
-        child: Text(
-          user.initials,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
+          child: Center(
+            child: Text(
+              user.initials,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+              ),
+            ),
           ),
         ),
-      ),
+        Positioned(
+          bottom: -2,
+          right: -2,
+          child: Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: MadiColors.cardDark,
+              shape: BoxShape.circle,
+              border: Border.all(color: statusColor, width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: statusColor.withValues(alpha: 0.4),
+                  blurRadius: 6,
+                ),
+              ],
+            ),
+            child: Icon(statusIcon, size: 10, color: statusColor),
+          ),
+        ),
+      ],
     );
   }
 
