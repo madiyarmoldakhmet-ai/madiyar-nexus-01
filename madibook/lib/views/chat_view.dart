@@ -124,17 +124,43 @@ class _ThreadListScreen extends StatelessWidget {
                             style: TextStyle(color: MadiColors.textMuted)),
                     trailing: StreamBuilder<QuerySnapshot>(
                       stream: FirebaseFirestore.instance
-                          .collection('chats')
-                          .doc(thread.id)
-                          .collection('messages')
+                          .collectionGroup('messages')
                           .where('senderId', isEqualTo: thread.otherId(myId))
                           .where('isRead', isEqualTo: false)
                           .snapshots(),
                       builder: (context, snapshot) {
-                        int unread = 0;
-                        if (snapshot.hasData) {
-                          unread = snapshot.data!.docs.length;
+                        if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                          final count = snapshot.data!.docs.length;
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              if (lastMsg != null)
+                                Text(
+                                  DateFormat.Hm().format(lastMsg.timestamp),
+                                  style: TextStyle(
+                                      color: MadiColors.textMuted, fontSize: 11),
+                                ),
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.all(5),
+                                decoration: const BoxDecoration(
+                                  color: MadiColors.gold,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Text(
+                                  '$count',
+                                  style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                            ],
+                          );
                         }
+                        
+                        // Fallback if no unread messages
                         return Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -145,23 +171,6 @@ class _ThreadListScreen extends StatelessWidget {
                                 style: TextStyle(
                                     color: MadiColors.textMuted, fontSize: 11),
                               ),
-                            if (unread > 0) ...[
-                              const SizedBox(height: 4),
-                              Container(
-                                padding: const EdgeInsets.all(5),
-                                decoration: const BoxDecoration(
-                                  color: MadiColors.gold,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Text(
-                                  '$unread',
-                                  style: const TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w700),
-                                ),
-                              ),
-                            ],
                           ],
                         );
                       },
@@ -250,44 +259,6 @@ class _ConversationScreen extends StatefulWidget {
 class _ConversationScreenState extends State<_ConversationScreen> {
   final _msgController = TextEditingController();
   final _scrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    _setupMessageListener();
-  }
-
-  void _setupMessageListener() {
-    final auth = context.read<AuthService>();
-    final myId = auth.currentUser?.id ?? '';
-
-    FirebaseFirestore.instance
-        .collectionGroup('messages')
-        .where('isRead', isEqualTo: false)
-        .snapshots()
-        .listen((snapshot) {
-      for (var change in snapshot.docChanges) {
-        if (change.type == DocumentChangeType.added) {
-          final data = change.doc.data() as Map<String, dynamic>;
-          final senderId = data['senderId'];
-
-          // Only show notification if message is from someone else
-          if (senderId != myId) {
-            showSimpleNotification(
-              Text("New Message", style: GoogleFonts.oswald(color: Colors.white)),
-              subtitle: Text(
-                data['content'] ?? "Sent a file/image",
-                style: GoogleFonts.oswald(color: Colors.white70, fontSize: 12),
-              ),
-              background: MadiColors.bloodRed,
-              duration: const Duration(seconds: 3),
-              leading: const Icon(Icons.chat_bubble_rounded, color: Colors.white),
-            );
-          }
-        }
-      }
-    });
-  }
 
   @override
   void dispose() {
