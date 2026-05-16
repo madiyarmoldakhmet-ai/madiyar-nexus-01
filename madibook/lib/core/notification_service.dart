@@ -16,21 +16,7 @@ class NotificationService {
 
   /// Initialize notifications for the app.
   Future<void> initialize() async {
-    if (kIsWeb) return;
-
-    // 1. Request permissions (especially for iOS/Android 13+)
-    NotificationSettings settings = await _fcm.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-      provisional: false,
-    );
-
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      debugPrint('🔔 Notification permissions granted');
-    }
-
-    // 2. Initialize local notifications for foreground alerts
+    // 1. Initialize local notifications for foreground alerts
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
     const IOSInitializationSettings iosSettings = IOSInitializationSettings();
@@ -40,35 +26,56 @@ class NotificationService {
       iOS: iosSettings,
     );
 
-    // Initialize local notifications
     try {
       await _localNotifications.initialize(initSettings);
     } catch (e) {
       debugPrint('Local notifications init failed: $e');
     }
 
-    // 3. Create Android notification channel
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      const AndroidNotificationChannel channel = AndroidNotificationChannel(
-        'nexus_high_importance_channel',
-        'Nexus Notifications',
-        'Important notifications from Nexus.',
-        importance: Importance.max,
-      );
-
-      await _localNotifications
-          .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(channel);
+    if (kIsWeb) {
+      debugPrint('🌐 Web detected: Skipping intensive FCM initialization to prevent 404 crash.');
+      return;
     }
 
-    // 4. Handle background messages
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    try {
+      // 2. Request permissions (especially for iOS/Android 13+)
+      NotificationSettings settings = await _fcm.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+        provisional: false,
+      );
 
-    // 5. Handle foreground messages
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      _showLocalNotification(message);
-    });
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        debugPrint('🔔 Notification permissions granted');
+      }
+
+      // 3. Create Android notification channel
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        const AndroidNotificationChannel channel = AndroidNotificationChannel(
+          'nexus_high_importance_channel',
+          'Nexus Notifications',
+          'Important notifications from Nexus.',
+          importance: Importance.max,
+        );
+
+        await _localNotifications
+            .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>()
+            ?.createNotificationChannel(channel);
+      }
+
+      // 4. Handle background messages
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+      // 5. Handle foreground messages
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        _showLocalNotification(message);
+      });
+    } catch (e) {
+      debugPrint('⚠️ Firebase Messaging initialization failed safely: $e');
+      // No rethrow - allow app to continue
+    }
   }
 
   /// Show a local notification when the app is in the foreground.
