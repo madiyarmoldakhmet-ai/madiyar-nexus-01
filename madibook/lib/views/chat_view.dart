@@ -96,8 +96,10 @@ class _ThreadListScreen extends StatelessWidget {
                         horizontal: 20, vertical: 6),
                     leading: StreamBuilder<QuerySnapshot>(
                       stream: FirebaseFirestore.instance
-                          .collectionGroup('messages')
-                          .where('senderId', isEqualTo: thread.otherId(myId))
+                          .collection('chats')
+                          .doc(thread.id)
+                          .collection('messages')
+                          .where('receiverId', isEqualTo: myId)
                           .where('isRead', isEqualTo: false)
                           .snapshots(),
                       builder: (context, snapshot) {
@@ -127,11 +129,11 @@ class _ThreadListScreen extends StatelessWidget {
                                 top: -2,
                                 right: -2,
                                 child: Container(
-                                  padding: const EdgeInsets.all(4),
+                                  padding: const EdgeInsets.all(5),
                                   decoration: BoxDecoration(
                                     color: MadiColors.bloodRed,
                                     shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.black, width: 2),
+                                    border: Border.all(color: Colors.black, width: 1.5),
                                     boxShadow: [
                                       BoxShadow(
                                         color: MadiColors.bloodRed.withValues(alpha: 0.7),

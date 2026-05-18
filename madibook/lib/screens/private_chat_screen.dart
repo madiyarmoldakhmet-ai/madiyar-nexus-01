@@ -62,9 +62,23 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
         .add({
       'text': text,
       'senderId': myId,
+      'receiverId': widget.otherUserId,
+      'senderName': auth.currentUser?.name ?? 'User',
       'isRead': false,
       'timestamp': FieldValue.serverTimestamp(),
     });
+
+    // Update parent chat document for thread lists and badges
+    await FirebaseFirestore.instance
+        .collection('chats')
+        .doc(chatId)
+        .set({
+      'lastMessage': text,
+      'updatedAt': FieldValue.serverTimestamp(),
+      'isRead': false,
+      'senderId': myId,
+      'receiverId': widget.otherUserId,
+    }, SetOptions(merge: true));
   }
 
   @override
@@ -104,11 +118,19 @@ class _PrivateChatScreenState extends State<PrivateChatScreen> {
 
                 // Mark unread messages as read
                 WidgetsBinding.instance.addPostFrameCallback((_) {
+                  bool updatedAny = false;
                   for (var doc in docs) {
                     final data = doc.data() as Map<String, dynamic>;
                     if (data['senderId'] != myId && (data['isRead'] == false || data['isRead'] == null)) {
                       doc.reference.update({'isRead': true});
+                      updatedAny = true;
                     }
+                  }
+                  if (updatedAny) {
+                    FirebaseFirestore.instance
+                        .collection('chats')
+                        .doc(chatId)
+                        .update({'isRead': true});
                   }
                 });
 

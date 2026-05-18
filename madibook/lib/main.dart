@@ -178,53 +178,13 @@ class _NexusShellState extends State<NexusShell> {
   @override
   void initState() {
     super.initState();
-    _setupGlobalNotificationListener();
+    NotificationService().startListening();
   }
 
-  void _setupGlobalNotificationListener() {
-    final auth = context.read<AuthService>();
-    final myId = auth.currentUser?.id ?? '';
-
-    if (myId.isEmpty) {
-      debugPrint('===> [DEBUG] 🔔 Global listener: myId is empty, skipping.');
-      return;
-    }
-
-    debugPrint('===> [DEBUG] 🔔 Global listener active for user: $myId');
-
-    FirebaseFirestore.instance
-        .collectionGroup('messages')
-        .where('isRead', isEqualTo: false)
-        .snapshots()
-        .listen((snapshot) {
-      debugPrint('===> [DEBUG] 🔔 Snapshot received with ${snapshot.docs.length} unread messages.');
-      for (var change in snapshot.docChanges) {
-        if (change.type == DocumentChangeType.added) {
-          final data = change.doc.data() as Map<String, dynamic>;
-          final senderId = data['senderId'] ?? data['sender_id'];
-          final content = data['content'] ?? data['text'] ?? "Sent a file/image";
-
-          debugPrint('===> [DEBUG] 🔔 New message from $senderId: $content');
-
-          // Show notification only if it's NOT from me
-          if (senderId != myId) {
-            debugPrint('===> [DEBUG] 🔔 Showing notification for message from $senderId');
-            showSimpleNotification(
-              Text("New Message", style: GoogleFonts.oswald(color: Colors.white)),
-              subtitle: Text(
-                content,
-                style: GoogleFonts.oswald(color: Colors.white70, fontSize: 12),
-              ),
-              background: MadiColors.bloodRed,
-              duration: const Duration(seconds: 3),
-              leading: const Icon(Icons.chat_bubble_rounded, color: Colors.white),
-            );
-          } else {
-            debugPrint('===> [DEBUG] 🔔 Message is from self, ignoring.');
-          }
-        }
-      }
-    });
+  @override
+  void dispose() {
+    NotificationService().stopListening();
+    super.dispose();
   }
 
   @override
