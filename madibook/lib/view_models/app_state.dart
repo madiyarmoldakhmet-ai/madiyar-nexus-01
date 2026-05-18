@@ -13,11 +13,19 @@ class AppState extends ChangeNotifier {
   List<NexusUser> _communityUsers = [];
   final List<SwapRequest> _swapRequests = [];
   int _selectedTabIndex = 0;
+  bool _isDarkMode = false; // WhatsApp / Instagram default is Light (false)
 
   NexusUser? get currentUser => _currentUser;
   List<NexusUser> get communityUsers => List.unmodifiable(_communityUsers);
   List<SwapRequest> get swapRequests => List.unmodifiable(_swapRequests);
   int get selectedTabIndex => _selectedTabIndex;
+  bool get isDarkMode => _isDarkMode;
+
+  /// Toggles between light theme and dark theme
+  void toggleTheme() {
+    _isDarkMode = !_isDarkMode;
+    notifyListeners();
+  }
 
   /// Update the current user from the Auth service.
   void setCurrentUser(NexusUser? user) {

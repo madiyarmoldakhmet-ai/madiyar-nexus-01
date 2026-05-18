@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../view_models/app_state.dart';
 
-/// A debug-focused atmospheric anime background widget.
+/// A dynamic premium background adaptible to WhatsApp / Instagram Light & Dark themes.
 class AnimeBackground extends StatelessWidget {
   final Widget child;
   final String assetPath;
@@ -15,54 +17,48 @@ class AnimeBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const githubUrl = 'https://raw.githubusercontent.com/madiyarmoldakhmet-ai/madibook01/main/assets/images/kaneki_v2.jpg';
+    final appState = context.watch<AppState>();
+    final isDark = appState.isDarkMode;
 
     return Container(
-      // Nuked solid black background overlays
-      color: Colors.transparent, 
+      // High-end dynamic transition colors
+      color: isDark ? const Color(0xFF121212) : const Color(0xFFFFFFFF),
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // 1. Primary Layer: Image (Tried via Network first for reliability)
-          Image.network(
-            githubUrl,
-            fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return const Center(child: CircularProgressIndicator(color: Colors.white));
-            },
-            errorBuilder: (context, error, stackTrace) {
-              debugPrint('AnimeBackground: Network image failed: $error');
-              return Image.asset(
-                assetPath,
-                fit: BoxFit.cover,
-                errorBuilder: (ctx, err, st) {
-                  return Image.asset(
-                    'assets/$assetPath',
-                    fit: BoxFit.cover,
-                    errorBuilder: (c, e, s) => Container(color: Colors.red),
-                  );
-                },
-              );
-            },
-          ),
-
-          // 2. Overlay Layer: Darkening and Atmospheric Tint
-          // Setting alpha very low for debugging visibility
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withValues(alpha: opacity * 0.1), 
-                  Colors.black.withValues(alpha: opacity * 0.2),
-                ],
+          // If we want subtle premium gradients like Instagram
+          if (!isDark)
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFFFFFFFF),
+                    Color(0xFFF7F8FA),
+                    Color(0xFFE9EBEE),
+                  ],
+                  stops: [0.0, 0.5, 1.0],
+                ),
+              ),
+            )
+          else
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF121212),
+                    Color(0xFF1E1E1E),
+                    Color(0xFF0F0F0F),
+                  ],
+                  stops: [0.0, 0.6, 1.0],
+                ),
               ),
             ),
-          ),
 
-          // 3. Content Layer
+          // 2. Content Layer
           child,
         ],
       ),

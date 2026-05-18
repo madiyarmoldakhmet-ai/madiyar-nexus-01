@@ -35,13 +35,13 @@ class ProfileView extends StatelessWidget {
                 pinned: true,
                 backgroundColor: Colors.transparent,
                 title: Text('My Profile',
-                    style: GoogleFonts.oswald(
+                    style: GoogleFonts.inter(
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onSurface,
                     )),
                 actions: [
                   IconButton(
-                    icon: const Icon(Icons.edit_rounded, color: MadiColors.bloodRed),
+                    icon: Icon(Icons.edit_rounded, color: Theme.of(context).colorScheme.primary),
                     tooltip: 'Edit Profile',
                     onPressed: () => Navigator.push(
                       context,
@@ -88,6 +88,58 @@ class ProfileView extends StatelessWidget {
                           skills: user.seekings),
                       const SizedBox(height: MadiSpacing.lg),
 
+                      // Theme Switcher Tile (WhatsApp / Instagram White & Black Switch)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        margin: const EdgeInsets.only(bottom: MadiSpacing.lg),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardTheme.color ?? const Color(0xFFF8F9FA),
+                          borderRadius: BorderRadius.circular(MadiRadius.lg),
+                          border: Border.all(
+                            color: Theme.of(context).dividerTheme.color ?? const Color(0xFFE4E6EB),
+                            width: 0.8,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              appState.isDarkMode ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Dark Mode / Черная тема',
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  Text(
+                                    appState.isDarkMode 
+                                        ? 'Switch to WhatsApp Light mode' 
+                                        : 'Switch to WhatsApp Dark mode',
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Switch(
+                              value: appState.isDarkMode,
+                              activeColor: Theme.of(context).colorScheme.primary,
+                              onChanged: (value) {
+                                appState.toggleTheme();
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+
                       // Sign out button
                       SizedBox(
                         width: double.infinity,
@@ -122,9 +174,9 @@ class ProfileView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(MadiSpacing.lg),
       decoration: BoxDecoration(
-        color: MadiColors.cardDark,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(MadiRadius.xl),
-        border: Border.all(color: MadiColors.border, width: 0.5),
+        border: Border.all(color: Theme.of(context).dividerTheme.color ?? const Color(0xFFE4E6EB), width: 0.8),
       ),
       child: Row(
         children: [

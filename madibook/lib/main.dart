@@ -85,13 +85,17 @@ class NexusApp extends StatelessWidget {
             create: (_) => ChatController(chatService)),
       ],
       child: OverlaySupport.global(
-        child: MaterialApp(
-          title: 'Nexus',
-          debugShowCheckedModeBanner: false,
-          theme: MadiTheme.dark,
-          darkTheme: MadiTheme.dark,
-          themeMode: ThemeMode.dark,
-          home: const AuthGate(),
+        child: Consumer<AppState>(
+          builder: (context, appState, child) {
+            return MaterialApp(
+              title: 'Nexus',
+              debugShowCheckedModeBanner: false,
+              theme: MadiTheme.light,
+              darkTheme: MadiTheme.dark,
+              themeMode: appState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+              home: const AuthGate(),
+            );
+          },
         ),
       ),
     );
@@ -199,13 +203,13 @@ class _NexusShellState extends State<NexusShell> {
           ),
           bottomNavigationBar: Container(
             decoration: BoxDecoration(
-              color: MadiColors.surfaceDark,
-              border: const Border(
-                top: BorderSide(color: MadiColors.border, width: 0.5),
+              color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+              border: Border(
+                top: BorderSide(color: Theme.of(context).dividerTheme.color ?? const Color(0xFFE4E6EB), width: 0.8),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, -2),
                 ),
@@ -214,11 +218,11 @@ class _NexusShellState extends State<NexusShell> {
             child: BottomNavigationBar(
               currentIndex: appState.selectedTabIndex,
               onTap: appState.setTabIndex,
-              backgroundColor: MadiColors.ghoulDark,
-              selectedItemColor: MadiColors.bloodRed,
-              unselectedItemColor: MadiColors.textMuted,
-              selectedLabelStyle: GoogleFonts.oswald(fontSize: 10, fontWeight: FontWeight.bold),
-              unselectedLabelStyle: GoogleFonts.oswald(fontSize: 10),
+              backgroundColor: Colors.transparent,
+              selectedItemColor: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
+              unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
+              selectedLabelStyle: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold),
+              unselectedLabelStyle: GoogleFonts.inter(fontSize: 11),
               type: BottomNavigationBarType.fixed,
               items: const [
                 BottomNavigationBarItem(

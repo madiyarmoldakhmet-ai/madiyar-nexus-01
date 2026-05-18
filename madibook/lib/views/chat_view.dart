@@ -201,10 +201,10 @@ class _ThreadListScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: MadiColors.surfaceDark,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardTheme.color,
           borderRadius:
-              BorderRadius.vertical(top: Radius.circular(MadiRadius.xl)),
+              const BorderRadius.vertical(top: Radius.circular(MadiRadius.xl)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -214,7 +214,7 @@ class _ThreadListScreen extends StatelessWidget {
               width: 40, height: 4,
               margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                color: MadiColors.border,
+                color: Theme.of(context).dividerTheme.color ?? const Color(0xFFE4E6EB),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -292,19 +292,19 @@ class _ConversationScreenState extends State<_ConversationScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+            icon: Icon(Icons.arrow_back_rounded, color: Theme.of(context).colorScheme.onSurface),
             onPressed: () => chat.closeThread(),
           ),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(otherName, style: GoogleFonts.oswald(color: Colors.white, fontSize: 18)),
-              Text('Mentor / Talent', style: GoogleFonts.coveredByYourGrace(color: MadiColors.bloodRed, fontSize: 12)),
+              Text(otherName, style: GoogleFonts.inter(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.bold)),
+              Text('Mentor / Talent', style: GoogleFonts.inter(color: Theme.of(context).colorScheme.primary, fontSize: 11, fontWeight: FontWeight.w500)),
             ],
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.phone_rounded, color: MadiColors.bloodRed),
+              icon: Icon(Icons.phone_rounded, color: Theme.of(context).colorScheme.primary),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -319,7 +319,7 @@ class _ConversationScreenState extends State<_ConversationScreen> {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.videocam_rounded, color: MadiColors.bloodRed),
+              icon: Icon(Icons.videocam_rounded, color: Theme.of(context).colorScheme.primary),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -341,9 +341,8 @@ class _ConversationScreenState extends State<_ConversationScreen> {
             // Messages
             Expanded(
               child: messages.isEmpty
-                  ? Center(
-                      child: Text('Say hello! 👋',
-                          style: TextStyle(color: MadiColors.textMuted)),
+                  ? const Center(
+                      child: Text('Say hello! 👋'),
                     )
                   : ListView.builder(
                       controller: _scrollController,
@@ -365,10 +364,10 @@ class _ConversationScreenState extends State<_ConversationScreen> {
             Container(
               padding: EdgeInsets.fromLTRB(
                   16, 8, 8, MediaQuery.of(context).padding.bottom + 8),
-              decoration: const BoxDecoration(
-                color: MadiColors.surfaceDark,
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardTheme.color,
                 border: Border(
-                  top: BorderSide(color: MadiColors.border, width: 0.5),
+                  top: BorderSide(color: Theme.of(context).dividerTheme.color ?? const Color(0xFFE4E6EB), width: 0.8),
                 ),
               ),
               child: Row(
@@ -376,14 +375,12 @@ class _ConversationScreenState extends State<_ConversationScreen> {
                   Expanded(
                     child: TextField(
                       controller: _msgController,
-                      style:
-                          const TextStyle(color: MadiColors.textPrimary),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                       decoration: InputDecoration(
                         hintText: 'Type a message...',
-                        hintStyle:
-                            TextStyle(color: MadiColors.textMuted),
+                        hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                         filled: true,
-                        fillColor: MadiColors.cardDark,
+                        fillColor: Theme.of(context).inputDecorationTheme.fillColor,
                         border: OutlineInputBorder(
                           borderRadius:
                               BorderRadius.circular(MadiRadius.full),

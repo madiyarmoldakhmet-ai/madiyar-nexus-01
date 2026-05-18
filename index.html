@@ -52,7 +52,7 @@
 
   <style>
     body {
-      background: transparent !important;
+      background: #ffffff !important;
       margin: 0;
       padding: 0;
       overflow: hidden;
@@ -64,11 +64,10 @@
       width: 100%;
       height: 100%;
       z-index: -1;
-      background: url("kaneki.jpg") no-repeat center center fixed;
-      background-size: cover;
+      background: #ffffff;
     }
     flutter-view {
-      background: transparent !important;
+      background: #ffffff !important;
     }
   </style>
 </head>
@@ -80,16 +79,12 @@
   
   <script>
     window.addEventListener('load', function(ev) {
-      // Plan "Last Hero" - Injector Script to enforce transparent background
       setInterval(() => {
         var fltView = document.querySelector('flutter-view');
         if (fltView) {
           fltView.style.background = 'transparent';
-          // Force body background as well
-          document.body.style.background = 'url("kaneki.jpg") no-repeat center center fixed';
-          document.body.style.backgroundSize = 'cover';
         }
-      }, 500); // 500ms for faster detection
+      }, 500);
     });
   </script>
 </body>

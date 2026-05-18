@@ -72,14 +72,14 @@ class _SkillCardState extends State<SkillCard>
             margin: const EdgeInsets.only(bottom: MadiSpacing.md),
             decoration: BoxDecoration(
               color: _isHovered
-                  ? MadiColors.cardDark.withValues(alpha: 0.95)
-                  : MadiColors.cardDark,
+                  ? (Theme.of(context).cardTheme.color ?? const Color(0xFFF7F8FA)).withOpacity(0.95)
+                  : (Theme.of(context).cardTheme.color ?? const Color(0xFFF7F8FA)),
               borderRadius: BorderRadius.circular(MadiRadius.xl),
               border: Border.all(
                 color: isPerfect
-                    ? MadiColors.gold.withValues(alpha: 0.4)
-                    : MadiColors.border,
-                width: isPerfect ? 1.5 : 0.5,
+                    ? MadiColors.gold.withOpacity(0.4)
+                    : (Theme.of(context).dividerTheme.color ?? const Color(0xFFE4E6EB)),
+                width: isPerfect ? 1.5 : 0.8,
               ),
               boxShadow: _isHovered ? MadiShadows.card : MadiShadows.subtle,
             ),

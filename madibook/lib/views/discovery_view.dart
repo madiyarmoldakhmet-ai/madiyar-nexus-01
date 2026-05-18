@@ -62,31 +62,24 @@ class _DiscoveryViewState extends State<DiscoveryView> {
               ),
               title: Text(
                 'Nexus',
-                style: GoogleFonts.coveredByYourGrace(
-                  fontSize: 36,
+                style: GoogleFonts.inter(
+                  fontSize: 26,
                   fontWeight: FontWeight.w900,
-                  color: MadiColors.bloodRed,
-                  letterSpacing: 3.0,
-                  shadows: [
-                    Shadow(
-                      color: MadiColors.bloodRed.withValues(alpha: 0.5),
-                      blurRadius: 12,
-                    ),
-                  ],
+                  color: Theme.of(context).colorScheme.primary,
+                  letterSpacing: -0.5,
                 ),
               ),
               bottom: TabBar(
-                indicatorColor: MadiColors.bloodRed,
+                indicatorColor: Theme.of(context).colorScheme.primary,
                 indicatorWeight: 3,
-                labelColor: MadiColors.bloodRed,
-                unselectedLabelColor: MadiColors.textMuted,
-                indicatorSize: TabBarIndicatorSize.label,
-                labelStyle: GoogleFonts.oswald(
+                labelColor: Theme.of(context).colorScheme.primary,
+                unselectedLabelColor: Theme.of(context).disabledColor,
+                indicatorSize: TabBarIndicatorSize.tab,
+                labelStyle: GoogleFonts.inter(
                   fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
                   fontSize: 14,
                 ),
-                unselectedLabelStyle: GoogleFonts.oswald(fontSize: 14),
+                unselectedLabelStyle: GoogleFonts.inter(fontSize: 14),
                 tabs: const [
                   Tab(
                     child: Row(
