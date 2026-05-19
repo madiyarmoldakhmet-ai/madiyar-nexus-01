@@ -48,83 +48,45 @@ class AuthService extends ChangeNotifier {
   StreamSubscription? _userDocSubscription;
 
   AuthService() {
-    debugPrint('🔐 AuthService: Initializing...');
-    // Listen to Firebase Auth state changes
-    try {
-      _auth.authStateChanges().listen((user) {
-        debugPrint('🔐 AuthService: Firebase Auth state changed: ${user?.uid ?? "null"}');
-        _onAuthStateChanged(user);
-      }, onError: (e) {
-        debugPrint('❌ AuthService: Firebase Auth error: $e');
-        _state = AuthState.error;
-        _errorMessage = 'Firebase Auth Error: $e';
-        notifyListeners();
-      });
-    } catch (e) {
-      debugPrint('❌ AuthService: Failed to initialize listeners: $e');
-      _state = AuthState.error;
-      _errorMessage = 'Auth failed to initialize: $e';
-    }
-    
-    // Safety timeout: if auth state doesn't change from initial within 3 seconds, it's likely a Firebase config issue
-    Future.delayed(const Duration(seconds: 3), () {
-      if (_state == AuthState.initial) {
-        debugPrint('⚠️ AuthService: Auth timeout! Current state still initial.');
-        _state = AuthState.error;
-        _errorMessage = 'Auth failed to initialize. Please check your internet connection or Firebase configuration.';
-        _authStateController.add(null);
-        notifyListeners();
-      }
-    });
+    debugPrint('🔐 AuthService: Initializing with RADICAL ZERO-STARTUP-READ mode.');
+    // Force unauthenticated state on startup to show LoginView instantly without any Firebase requests.
+    _state = AuthState.unauthenticated;
   }
 
-  Future<void> _onAuthStateChanged(User? firebaseUser) async {
+  /// Manually sync user from Firestore ONLY after explicit login/registration.
+  Future<void> _syncUserAfterLogin(User firebaseUser, {String? nameOverride}) async {
+    debugPrint('🔐 AuthService: Manual sync triggered for ${firebaseUser.uid}');
     _userDocSubscription?.cancel();
     
-    if (firebaseUser == null) {
-      _currentUser = null;
-      _state = AuthState.unauthenticated;
-      _authStateController.add(null);
-    } else {
-      // Initialize state as loading while we fetch data
-      _state = AuthState.authenticated;
-      
-      // Start listening to the Firestore document for real-time updates
+    _state = AuthState.loading;
+    notifyListeners();
+
+    // Ensure the document exists
+    _currentUser = await _ensureUserStored(firebaseUser, nameOverride: nameOverride);
+    
+    // Now establish the realtime subscription
+    try {
       _userDocSubscription = _firestore
           .collection('users')
           .doc(firebaseUser.uid)
           .snapshots()
-          .listen((snapshot) async {
+          .listen((snapshot) {
         if (snapshot.exists) {
           _currentUser = NexusUser.fromJson(snapshot.data() as Map<String, dynamic>, snapshot.id);
           _authStateController.add(_currentUser);
           notifyListeners();
-        } else {
-          // If doc doesn't exist yet, create it
-          _currentUser = await _ensureUserStored(firebaseUser);
-          _authStateController.add(_currentUser);
-          notifyListeners();
         }
       });
-      
-      _userDocSubscription?.onError((error) {
-        debugPrint('Firestore User Doc Error: $error');
-        // If Firestore fails (e.g. permissions), fallback to initial user to prevent infinite loading
-        _currentUser = NexusUser(
-          id: firebaseUser.uid,
-          name: firebaseUser.displayName ?? 'Error User',
-          username: 'error_user',
-          email: firebaseUser.email ?? '',
-          bio: 'Error loading profile',
-        );
-        _state = AuthState.authenticated;
-        _authStateController.add(_currentUser);
-        notifyListeners();
-      });
-      
-      // Initial FCM token update
-      NotificationService().updateFcmToken(firebaseUser.uid);
+    } catch (e) {
+      debugPrint('Firestore subscription error: $e');
     }
+
+    try {
+      NotificationService().updateFcmToken(firebaseUser.uid);
+    } catch (_) {}
+
+    _state = AuthState.authenticated;
+    _authStateController.add(_currentUser);
     notifyListeners();
   }
 
@@ -192,10 +154,7 @@ class AuthService extends ChangeNotifier {
         
         // Manual sync after creation to ensure name is set correctly
         debugPrint('DEBUG: User created: ${user.uid}');
-        _currentUser = await _ensureUserStored(user, nameOverride: name.trim());
-        
-        _state = AuthState.authenticated;
-        notifyListeners();
+        await _syncUserAfterLogin(user, nameOverride: name.trim());
         return _currentUser;
       }
     } on FirebaseAuthException catch (e) {
@@ -232,7 +191,7 @@ class AuthService extends ChangeNotifier {
 
       if (credential.user != null) {
         debugPrint('DEBUG: User signed in: ${credential.user!.uid}');
-        // Sync handled by the listener
+        await _syncUserAfterLogin(credential.user!);
         return _currentUser;
       }
     } on FirebaseAuthException catch (e) {
