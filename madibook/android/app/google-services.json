@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "52810814573",
-    "project_id": "nexus-e96e0",
-    "storage_bucket": "nexus-e96e0.firebasestorage.app"
+    "project_number": "1085138930648",
+    "project_id": "madiyar-nexus-01",
+    "storage_bucket": "madiyar-nexus-01.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:52810814573:android:609701709e4ee27c6b9b64",
+        "mobilesdk_app_id": "1:1085138930648:android:059e28323a48b192a480ad",
         "android_client_info": {
           "package_name": "com.madiyar.nexus"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAjumgPG1LUhGx4hI_f9x8hYHlK5JVNHcs"
+          "current_key": "AIzaSyCAp526FozsFSrQeM1baPsKXWVqG3qxPa0"
         }
       ],
       "services": {

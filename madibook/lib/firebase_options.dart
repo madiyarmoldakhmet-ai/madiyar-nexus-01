@@ -41,38 +41,37 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAwzL_KlxVj7KAIHAroeRgXnPm3tkCYkyo',
-    appId: '1:52810814573:web:7decf4a424e34f096b9b64',
-    messagingSenderId: '52810814573',
-    projectId: 'madibook-e96e0',
-    authDomain: 'madibook-e96e0.firebaseapp.com',
-    storageBucket: 'madibook-e96e0.firebasestorage.app',
-    measurementId: 'G-5Y2F689VHZ',
+    apiKey: 'AIzaSyCySMjCSGmPJKVEcsYn6_RFryJCNbrrXIg',
+    appId: '1:1085138930648:web:7c93f6f9b06aeeb2a480ad',
+    messagingSenderId: '1085138930648',
+    projectId: 'madiyar-nexus-01',
+    authDomain: 'madiyar-nexus-01.firebaseapp.com',
+    storageBucket: 'madiyar-nexus-01.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAjumgPG1LUhGx4hI_f9x8hYHlK5JVNHcs',
-    appId: '1:52810814573:android:609701709e4ee27c6b9b64',
-    messagingSenderId: '52810814573',
-    projectId: 'madibook-e96e0',
-    storageBucket: 'madibook-e96e0.firebasestorage.app',
+    apiKey: 'AIzaSyCAp526FozsFSrQeM1baPsKXWVqG3qxPa0',
+    appId: '1:1085138930648:android:059e28323a48b192a480ad',
+    messagingSenderId: '1085138930648',
+    projectId: 'madiyar-nexus-01',
+    storageBucket: 'madiyar-nexus-01.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyB8QsbWWm5N_uBt10TXoIuWGBA12g15ANQ',
-    appId: '1:52810814573:ios:aa095083e0d5e6f56b9b64',
-    messagingSenderId: '52810814573',
-    projectId: 'madibook-e96e0',
-    storageBucket: 'madibook-e96e0.firebasestorage.app',
+    apiKey: 'AIzaSyA96ls1KWsu8AxVanTnmK_CINXBf-tazts',
+    appId: '1:1085138930648:ios:6a5a74008b961ffda480ad',
+    messagingSenderId: '1085138930648',
+    projectId: 'madiyar-nexus-01',
+    storageBucket: 'madiyar-nexus-01.firebasestorage.app',
     iosBundleId: 'com.madiyar.nexus',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyB8QsbWWm5N_uBt10TXoIuWGBA12g15ANQ',
-    appId: '1:52810814573:ios:aa095083e0d5e6f56b9b64',
-    messagingSenderId: '52810814573',
-    projectId: 'madibook-e96e0',
-    storageBucket: 'madibook-e96e0.firebasestorage.app',
+    apiKey: 'AIzaSyA96ls1KWsu8AxVanTnmK_CINXBf-tazts',
+    appId: '1:1085138930648:ios:6a5a74008b961ffda480ad',
+    messagingSenderId: '1085138930648',
+    projectId: 'madiyar-nexus-01',
+    storageBucket: 'madiyar-nexus-01.firebasestorage.app',
     iosBundleId: 'com.madiyar.nexus',
   );
 
