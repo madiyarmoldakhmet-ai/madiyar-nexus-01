@@ -23,12 +23,13 @@ class Skill {
   }) : id = id ?? const Uuid().v4();
 
   /// Create a Skill from a JSON map (backend deserialization).
-  factory Skill.fromJson(Map<String, dynamic> json) {
+  factory Skill.fromJson(Map<String, dynamic>? json) {
+    final data = json ?? {};
     return Skill(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      category: json['category'] as String,
-      type: json['type'] == 'offering' ? SkillType.offering : SkillType.seeking,
+      id: data['id'] as String? ?? '',
+      name: data['name'] as String? ?? '',
+      category: data['category'] as String? ?? '',
+      type: data['type'] == 'offering' ? SkillType.offering : SkillType.seeking,
     );
   }
 

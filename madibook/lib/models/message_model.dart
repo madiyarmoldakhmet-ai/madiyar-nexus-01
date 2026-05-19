@@ -20,9 +20,10 @@ class ChatMessage {
   })  : id = id ?? const Uuid().v4(),
         timestamp = timestamp ?? DateTime.now();
 
-  factory ChatMessage.fromFirestore(Map<String, dynamic> json, String docId) {
+  factory ChatMessage.fromFirestore(Map<String, dynamic>? json, String docId) {
+    final data = json ?? {};
     DateTime parsedTime;
-    final ts = json['timestamp'];
+    final ts = data['timestamp'];
     if (ts is Timestamp) {
       parsedTime = ts.toDate();
     } else if (ts is String) {
@@ -33,11 +34,11 @@ class ChatMessage {
 
     return ChatMessage(
       id: docId,
-      senderId: json['senderId'] as String? ?? '',
-      receiverId: json['receiverId'] as String? ?? '',
-      content: json['text'] as String? ?? '',
+      senderId: data['senderId'] as String? ?? '',
+      receiverId: data['receiverId'] as String? ?? '',
+      content: data['text'] as String? ?? '',
       timestamp: parsedTime,
-      isRead: json['isRead'] as bool? ?? false,
+      isRead: data['isRead'] as bool? ?? false,
     );
   }
 
@@ -96,14 +97,15 @@ class ChatThread {
     return name.isNotEmpty ? name[0].toUpperCase() : '?';
   }
 
-  factory ChatThread.fromFirestore(Map<String, dynamic> json, String docId) {
+  factory ChatThread.fromFirestore(Map<String, dynamic>? json, String docId) {
+    final data = json ?? {};
     return ChatThread(
       id: docId,
-      participantAId: json['participantAId'] as String? ?? '',
-      participantBId: json['participantBId'] as String? ?? '',
-      participantAName: json['participantAName'] as String? ?? '',
-      participantBName: json['participantBName'] as String? ?? '',
-      unreadCount: json['unreadCount'] as int? ?? 0,
+      participantAId: data['participantAId'] as String? ?? '',
+      participantBId: data['participantBId'] as String? ?? '',
+      participantAName: data['participantAName'] as String? ?? '',
+      participantBName: data['participantBName'] as String? ?? '',
+      unreadCount: data['unreadCount'] as int? ?? 0,
     );
   }
 

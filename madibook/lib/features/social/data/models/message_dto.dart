@@ -10,15 +10,16 @@ class MessageDto extends MessageEntity {
   });
 
   /// Factory method to create a DTO from Firestore data
-  factory MessageDto.fromJson(Map<String, dynamic> json, String documentId) {
+  factory MessageDto.fromJson(Map<String, dynamic>? json, String documentId) {
+    final data = json ?? {};
     return MessageDto(
       id: documentId,
-      senderId: json['senderId'] as String,
-      receiverId: json['receiverId'] as String,
-      content: json['content'] as String,
+      senderId: data['senderId'] as String? ?? '',
+      receiverId: data['receiverId'] as String? ?? '',
+      content: data['content'] as String? ?? data['text'] as String? ?? '',
       // Firestore Timestamp usually needs conversion, using DateTime.parse for mock
-      timestamp: json['timestamp'] != null 
-          ? DateTime.fromMillisecondsSinceEpoch(json['timestamp']) 
+      timestamp: data['timestamp'] != null 
+          ? DateTime.fromMillisecondsSinceEpoch(data['timestamp'] as int) 
           : DateTime.now(),
     );
   }

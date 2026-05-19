@@ -59,35 +59,35 @@ class NexusUser {
   }
 
   /// Create a NexusUser from a JSON map (backend deserialization).
-  factory NexusUser.fromJson(Map<String, dynamic> json, [String? docId]) {
-    final id = json['id'] as String? ?? json['uid'] as String? ?? docId ?? '';
+  factory NexusUser.fromJson(Map<String, dynamic>? json, [String? docId]) {
+    final data = json ?? {};
+    final id = data['id'] as String? ?? data['uid'] as String? ?? docId ?? '';
     return NexusUser(
       id: id,
-      name: json['name'] as String? ?? 'User',
-      username: json['username'] as String? ?? json['name'] as String? ?? 'user',
-      email: json['email'] as String? ?? '',
-      bio: json['bio'] as String? ?? '',
-      location: json['location'] as String? ?? '',
-      avatarUrl: json['avatar_url'] as String?,
+      name: data['name'] as String? ?? 'User',
+      username: data['username'] as String? ?? data['name'] as String? ?? 'user',
+      email: data['email'] as String? ?? '',
+      bio: data['bio'] as String? ?? '',
+      location: data['location'] as String? ?? '',
+      avatarUrl: data['avatar_url'] as String?,
       role: UserRole.values.firstWhere(
-        (e) => e.name == (json['role'] as String?),
+        (e) => e.name == (data['role'] as String?),
         orElse: () => UserRole.talent,
       ),
-      specialty: json['specialty'] as String? ?? '',
-      fcmToken: json['fcm_token'] as String?,
-      nexusCredits: (json['nexus_credits'] as num?)?.toDouble() ?? 
-                    (json['nexus_credits'] as num?)?.toDouble() ?? 3.0,
-      offerings: (json['offerings'] as List<dynamic>?)
-              ?.map((s) => Skill.fromJson(s as Map<String, dynamic>))
+      specialty: data['specialty'] as String? ?? '',
+      fcmToken: data['fcm_token'] as String?,
+      nexusCredits: (data['nexus_credits'] as num?)?.toDouble() ?? 3.0,
+      offerings: (data['offerings'] as List<dynamic>?)
+              ?.map((s) => Skill.fromJson(s as Map<String, dynamic>?))
               .toList() ??
           [],
-      seekings: (json['seekings'] as List<dynamic>?)
-              ?.map((s) => Skill.fromJson(s as Map<String, dynamic>))
+      seekings: (data['seekings'] as List<dynamic>?)
+              ?.map((s) => Skill.fromJson(s as Map<String, dynamic>?))
               .toList() ??
           [],
-      isVerified: json['is_verified'] as bool? ?? false,
-      relationshipStatus: json['relationship_status'] as String? ?? 'single',
-      joinedAt: _parseDateTime(json['joined_at'] ?? json['createdAt']),
+      isVerified: data['is_verified'] as bool? ?? false,
+      relationshipStatus: data['relationship_status'] as String? ?? 'single',
+      joinedAt: _parseDateTime(data['joined_at'] ?? data['createdAt']),
     );
   }
 
