@@ -73,6 +73,27 @@ class NexusApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (hasInitError) {
+      return MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => AuthService(isInitError: true)),
+          ChangeNotifierProvider(create: (_) => AppState()),
+        ],
+        child: Consumer<AppState>(
+          builder: (context, appState, child) {
+            return MaterialApp(
+              title: 'Nexus (Error Fallback)',
+              debugShowCheckedModeBanner: false,
+              theme: MadiTheme.light,
+              darkTheme: MadiTheme.dark,
+              themeMode: appState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+              home: const LoginView(),
+            );
+          },
+        ),
+      );
+    }
+
     final chatService = ChatService();
 
     return MultiProvider(
@@ -96,7 +117,7 @@ class NexusApp extends StatelessWidget {
               theme: MadiTheme.light,
               darkTheme: MadiTheme.dark,
               themeMode: appState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-              home: hasInitError ? const LoginView() : const AuthGate(),
+              home: const AuthGate(),
             );
           },
         ),

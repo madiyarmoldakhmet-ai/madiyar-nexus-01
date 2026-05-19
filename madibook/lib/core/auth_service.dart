@@ -47,10 +47,14 @@ class AuthService extends ChangeNotifier {
 
   StreamSubscription? _userDocSubscription;
 
-  AuthService() {
-    debugPrint('🔐 AuthService: Initializing with RADICAL ZERO-STARTUP-READ mode.');
-    // Force unauthenticated state on startup to show LoginView instantly without any Firebase requests.
-    _state = AuthState.unauthenticated;
+  AuthService({bool isInitError = false}) {
+    debugPrint('🔐 AuthService: Initializing with RADICAL ZERO-STARTUP-READ mode (isInitError: $isInitError).');
+    if (isInitError) {
+      _state = AuthState.error;
+      _errorMessage = 'Firebase failed to initialize. Please check your network or configuration.';
+    } else {
+      _state = AuthState.unauthenticated;
+    }
   }
 
   /// Manually sync user from Firestore ONLY after explicit login/registration.

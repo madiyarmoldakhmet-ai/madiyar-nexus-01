@@ -4,7 +4,8 @@ import '../models/message_model.dart';
 
 /// Real-time Firestore chat service for peer-to-peer messaging.
 class ChatService extends ChangeNotifier {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseFirestore? __firestore;
+  FirebaseFirestore get _firestore => __firestore ??= FirebaseFirestore.instance;
   
   List<ChatThread> _threads = [];
   final Map<String, List<ChatMessage>> _messages = {};
