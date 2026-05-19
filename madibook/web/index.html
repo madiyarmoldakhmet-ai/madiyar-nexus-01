@@ -32,9 +32,9 @@
     // FIX: Intercept fetch for Service Worker to force correct path
     const originalFetch = window.fetch;
     window.fetch = function(input, init) {
-      if (typeof input === 'string' && input.includes('firebase-messaging-sw.js') && !input.includes('madibook01')) {
+      if (typeof input === 'string' && input.includes('firebase-messaging-sw.js') && !input.includes('madiyar-nexus-01')) {
         console.log('Intercepted fetch:', input);
-        input = '/madibook01/firebase-messaging-sw.js';
+        input = '/madiyar-nexus-01/firebase-messaging-sw.js';
       }
       return originalFetch.call(this, input, init);
     };
@@ -46,11 +46,11 @@
         if (typeof url === 'string' && url.includes('firebase-messaging-sw.js')) {
           console.log('Intercepted Firebase SW registration:', url);
           // Force the correct path for GitHub Pages
-          url = '/madibook01/firebase-messaging-sw.js';
+          url = '/madiyar-nexus-01/firebase-messaging-sw.js';
           if (options) {
-             options.scope = '/madibook01/';
+             options.scope = '/madiyar-nexus-01/';
           } else {
-             options = { scope: '/madibook01/' };
+             options = { scope: '/madiyar-nexus-01/' };
           }
           console.log('Redirected to:', url);
         }
