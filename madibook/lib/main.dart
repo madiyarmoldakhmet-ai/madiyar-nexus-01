@@ -26,9 +26,10 @@ import 'core/notification_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  debugPrint('===> [DEBUG] 🚀 App starting... WidgetsFlutterBinding initialized.');
   try {
+    WidgetsFlutterBinding.ensureInitialized();
+    debugPrint('===> [DEBUG] 🚀 App starting... WidgetsFlutterBinding initialized.');
+    
     if (Firebase.apps.isEmpty) {
       debugPrint('===> [DEBUG] 🔥 Начинаем инициализацию Firebase...');
       await Firebase.initializeApp(
@@ -44,7 +45,6 @@ void main() async {
         try {
           FirebaseFirestore.instance.settings = Settings(
             persistenceEnabled: true,
-            // ssl and experimentalForceLongPolling are removed as they are invalid in cloud_firestore 5.6.12
           );
           debugPrint("===> [DEBUG] Firestore Web settings applied (without invalid parameters)");
         } catch (e) {
@@ -57,16 +57,19 @@ void main() async {
     debugPrint('===> [DEBUG] 🔔 Начинаем инициализацию Notifications...');
     await NotificationService().initialize();
     debugPrint('===> [DEBUG] 🔔 Notifications готовы!');
-  } catch (e) {
-    debugPrint('===> [DEBUG] ❌ Initialization error: $e');
+    
+    debugPrint('===> [DEBUG] Запуск runApp(NexusApp)...');
+    runApp(const NexusApp());
+  } catch (e, stack) {
+    debugPrint("Ошибочка поймана: $e");
+    debugPrint("Стек: $stack");
+    runApp(const NexusApp(hasInitError: true));
   }
-  
-  debugPrint('===> [DEBUG] Запуск runApp(NexusApp)...');
-  runApp(const NexusApp());
 }
 
 class NexusApp extends StatelessWidget {
-  const NexusApp({super.key});
+  final bool hasInitError;
+  const NexusApp({super.key, this.hasInitError = false});
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +96,7 @@ class NexusApp extends StatelessWidget {
               theme: MadiTheme.light,
               darkTheme: MadiTheme.dark,
               themeMode: appState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-              home: const AuthGate(),
+              home: hasInitError ? const LoginView() : const AuthGate(),
             );
           },
         ),

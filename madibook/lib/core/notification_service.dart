@@ -30,30 +30,34 @@ class NotificationService {
     // 1. Cancel previous subscription if active
     stopListening();
 
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      debugPrint('[NotificationService] No authenticated user found. Skipping listener.');
-      return;
-    }
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        debugPrint('[NotificationService] No authenticated user found. Skipping listener.');
+        return;
+      }
 
-    _appStartTime = DateTime.now();
-    debugPrint('[NotificationService] Started listening at $_appStartTime for user: ${user.uid}');
+      _appStartTime = DateTime.now();
+      debugPrint('[NotificationService] Started listening at $_appStartTime for user: ${user.uid}');
 
-    // 2. Setup the real-time query using collectionGroup
-    _subscription = FirebaseFirestore.instance
-        .collectionGroup('messages')
-        .where('receiverId', isEqualTo: user.uid)
-        .where('isRead', isEqualTo: false)
-        .snapshots()
-        .listen((snapshot) {
-          for (var change in snapshot.docChanges) {
-            if (change.type == DocumentChangeType.added) {
-              _handleNewMessage(change.doc);
+      // 2. Setup the real-time query using collectionGroup
+      _subscription = FirebaseFirestore.instance
+          .collectionGroup('messages')
+          .where('receiverId', isEqualTo: user.uid)
+          .where('isRead', isEqualTo: false)
+          .snapshots()
+          .listen((snapshot) {
+            for (var change in snapshot.docChanges) {
+              if (change.type == DocumentChangeType.added) {
+                _handleNewMessage(change.doc);
+              }
             }
-          }
-        }, onError: (error) {
-          debugPrint('[NotificationService] Error listening to messages: $error');
-        });
+          }, onError: (error) {
+            debugPrint('[NotificationService] Error listening to messages: $error');
+          });
+    } catch (e) {
+      debugPrint('[NotificationService] Failed to start listening (Firebase might not be initialized): $e');
+    }
   }
 
   /// Stop listening to notifications (e.g., on logout)

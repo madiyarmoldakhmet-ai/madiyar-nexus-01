@@ -10,8 +10,26 @@ enum AuthState { initial, loading, authenticated, unauthenticated, error }
 
 /// Production-ready Firebase Authentication service.
 class AuthService extends ChangeNotifier {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseAuth? __auth;
+  FirebaseFirestore? __firestore;
+
+  FirebaseAuth get _auth {
+    try {
+      return __auth ??= FirebaseAuth.instance;
+    } catch (e) {
+      debugPrint('❌ AuthService: Failed to get FirebaseAuth instance: $e');
+      rethrow;
+    }
+  }
+
+  FirebaseFirestore get _firestore {
+    try {
+      return __firestore ??= FirebaseFirestore.instance;
+    } catch (e) {
+      debugPrint('❌ AuthService: Failed to get FirebaseFirestore instance: $e');
+      rethrow;
+    }
+  }
 
   AuthState _state = AuthState.initial;
   NexusUser? _currentUser;
@@ -32,15 +50,21 @@ class AuthService extends ChangeNotifier {
   AuthService() {
     debugPrint('🔐 AuthService: Initializing...');
     // Listen to Firebase Auth state changes
-    _auth.authStateChanges().listen((user) {
-      debugPrint('🔐 AuthService: Firebase Auth state changed: ${user?.uid ?? "null"}');
-      _onAuthStateChanged(user);
-    }, onError: (e) {
-      debugPrint('❌ AuthService: Firebase Auth error: $e');
+    try {
+      _auth.authStateChanges().listen((user) {
+        debugPrint('🔐 AuthService: Firebase Auth state changed: ${user?.uid ?? "null"}');
+        _onAuthStateChanged(user);
+      }, onError: (e) {
+        debugPrint('❌ AuthService: Firebase Auth error: $e');
+        _state = AuthState.error;
+        _errorMessage = 'Firebase Auth Error: $e';
+        notifyListeners();
+      });
+    } catch (e) {
+      debugPrint('❌ AuthService: Failed to initialize listeners: $e');
       _state = AuthState.error;
-      _errorMessage = 'Firebase Auth Error: $e';
-      notifyListeners();
-    });
+      _errorMessage = 'Auth failed to initialize: $e';
+    }
     
     // Safety timeout: if auth state doesn't change from initial within 3 seconds, it's likely a Firebase config issue
     Future.delayed(const Duration(seconds: 3), () {
